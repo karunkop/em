@@ -194,6 +194,9 @@ describe('all platforms', () => {
     await press('Enter')
     await press('Backspace')
 
+    // Wait for caret to move back to the previous thought
+    await waitUntil(() => window.getSelection()?.focusNode?.textContent === 'first')
+
     const textContext = await getSelection().focusNode?.textContent
     expect(textContext).toBe('first')
 
@@ -228,7 +231,7 @@ describe('mobile only', () => {
 
   // TODO: Flaky test
   // https://github.com/cybersemics/em/issues/2959
-  testIfNotCI('After categorize, the caret should be on the new thought', async () => {
+  it('After categorize, the caret should be on the new thought', async () => {
     const importText = `
     - a
       - b`
@@ -243,6 +246,9 @@ describe('mobile only', () => {
 
     await waitForSelector('[aria-label="Categorize"]')
     await click('[aria-label="Categorize"]')
+
+    // Wait for categorization to complete and caret to move to new thought
+    await waitUntil(() => window.getSelection()?.focusNode?.textContent === '')
 
     const textContext = await getSelection().focusNode?.textContent
     expect(textContext).toBe('')
