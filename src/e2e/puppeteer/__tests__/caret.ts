@@ -8,7 +8,6 @@ import getSelection from '../helpers/getSelection'
 import paste from '../helpers/paste'
 import press from '../helpers/press'
 import refresh from '../helpers/refresh'
-import testIfNotCI from '../helpers/testIfNotCI'
 import waitForEditable from '../helpers/waitForEditable'
 import waitForHiddenEditable from '../helpers/waitForHiddenEditable'
 import waitForSelector from '../helpers/waitForSelector'
@@ -181,7 +180,7 @@ describe('all platforms', () => {
 
   // TODO: Flaky test
   // https://github.com/cybersemics/em/issues/2954
-  testIfNotCI('backspace on empty thought should move caret to the end of the previous thought', async () => {
+  it('backspace on empty thought should move caret to the end of the previous thought', async () => {
     const importText = `
     - first
     - last`
