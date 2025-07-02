@@ -194,7 +194,7 @@ describe('all platforms', () => {
     await press('Backspace')
 
     // Wait for caret to move back to the previous thought
-    await waitUntil(() => window.getSelection()?.focusNode?.textContent === 'first')
+    await waitForEditable('first')
 
     const textContext = await getSelection().focusNode?.textContent
     expect(textContext).toBe('first')
