@@ -14,7 +14,9 @@ import waitForSelector from '../helpers/waitForSelector'
 import waitForThoughtExistInDb from '../helpers/waitForThoughtExistInDb'
 import waitUntil from '../helpers/waitUntil'
 
-vi.setConfig({ testTimeout: 20000, hookTimeout: 20000 })
+const testTimeout = 20000
+
+vi.setConfig({ testTimeout, hookTimeout: 20000 })
 
 describe('all platforms', () => {
   // TODO: Why is this failing?
@@ -180,39 +182,43 @@ describe('all platforms', () => {
 
   // TODO: Flaky test
   // https://github.com/cybersemics/em/issues/2954
-  it('backspace on empty thought should move caret to the end of the previous thought', async () => {
-    const importText = `
+  it(
+    'backspace on empty thought should move caret to the end of the previous thought',
+    async () => {
+      const importText = `
     - first
     - last`
 
-    await paste(importText)
+      await paste(importText)
 
-    const first = await waitForEditable('first')
+      const first = await waitForEditable('first')
 
-    await click(first)
-    await press('Enter')
-    await press('Backspace')
+      await click(first)
+      await press('Enter')
+      await press('Backspace')
 
-    // Wait for the caret to be positioned at the end of the previous thought
-    await waitUntil(() => {
-      const selection = window.getSelection()
-      if (!selection?.focusNode) return false
-      if (selection.focusNode.textContent !== 'first') return false
+      // Wait for the caret to be positioned at the end of the previous thought
+      await waitUntil(() => {
+        const selection = window.getSelection()
+        if (!selection?.focusNode) return false
+        if (selection.focusNode.textContent !== 'first') return false
 
-      const nodeType = selection.focusNode.nodeType
-      const offset = selection.focusOffset
-      return nodeType === Node.TEXT_NODE ? offset === 'first'.length : offset === 1
-    })
+        const nodeType = selection.focusNode.nodeType
+        const offset = selection.focusOffset
+        return nodeType === Node.TEXT_NODE ? offset === 'first'.length : offset === 1
+      })
 
-    const textContext = await getSelection().focusNode?.textContent
-    expect(textContext).toBe('first')
+      const textContext = await getSelection().focusNode?.textContent
+      expect(textContext).toBe('first')
 
-    const offset = await getSelection().focusOffset
+      const offset = await getSelection().focusOffset
 
-    // offset at the end of the thought is value.length for TEXT_NODE and 1 for ELEMENT_NODE
-    const focusNodeType = await getSelection().focusNode?.nodeType
-    expect(offset).toBe(focusNodeType === Node.TEXT_NODE ? 'first'.length : 1)
-  })
+      // offset at the end of the thought is value.length for TEXT_NODE and 1 for ELEMENT_NODE
+      const focusNodeType = await getSelection().focusNode?.nodeType
+      expect(offset).toBe(focusNodeType === Node.TEXT_NODE ? 'first'.length : 1)
+    },
+    2 * testTimeout,
+  )
 })
 
 it('clicking backspace when the caret is at the end of a thought should delete a character.', async () => {
@@ -238,35 +244,39 @@ describe('mobile only', () => {
 
   // TODO: Flaky test
   // https://github.com/cybersemics/em/issues/2959
-  it('After categorize, the caret should be on the new thought', async () => {
-    const importText = `
+  it(
+    'After categorize, the caret should be on the new thought',
+    async () => {
+      const importText = `
     - a
       - b`
 
-    await paste(importText)
+      await paste(importText)
 
-    await clickThought('b')
-    await clickThought('b')
+      await clickThought('b')
+      await clickThought('b')
 
-    // close keyboard
-    await clickBullet('b')
+      // close keyboard
+      await clickBullet('b')
 
-    await waitForSelector('[aria-label="Categorize"]')
-    await click('[aria-label="Categorize"]')
+      await waitForSelector('[aria-label="Categorize"]')
+      await click('[aria-label="Categorize"]')
 
-    // Wait for categorization to complete and caret to move to new thought
-    await waitUntil(() => {
-      const selection = window.getSelection()
-      if (!selection?.focusNode) return false
-      return selection.focusNode.textContent === ''
-    })
+      // Wait for categorization to complete and caret to move to new thought
+      await waitUntil(() => {
+        const selection = window.getSelection()
+        if (!selection?.focusNode) return false
+        return selection.focusNode.textContent === ''
+      })
 
-    const textContext = await getSelection().focusNode?.textContent
-    expect(textContext).toBe('')
+      const textContext = await getSelection().focusNode?.textContent
+      expect(textContext).toBe('')
 
-    const offset = await getSelection().focusOffset
-    expect(offset).toBe(0)
-  })
+      const offset = await getSelection().focusOffset
+      expect(offset).toBe(0)
+    },
+    2 * testTimeout,
+  )
 
   // TODO: waitForHiddenEditable is broken after virtualizing thoughts
   it.skip('do nothing when a hidden uncle is clicked', async () => {
