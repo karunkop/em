@@ -194,7 +194,22 @@ describe('all platforms', () => {
       const first = await waitForEditable('first')
 
       await click(first)
+
+      // Wait for cursor to be on "first"
+      await waitUntil(() => {
+        const selection = window.getSelection()
+        return selection?.focusNode?.textContent === 'first'
+      })
+
       await press('Enter')
+
+      // Wait for new empty thought to be created and focused
+      await waitUntil(() => {
+        const selection = window.getSelection()
+        if (!selection?.focusNode) return false
+        return selection.focusNode.textContent === ''
+      })
+
       await press('Backspace')
 
       // Wait for the caret to be positioned at the end of the previous thought
