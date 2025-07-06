@@ -261,13 +261,13 @@ describe('mobile only', () => {
     await paste(importText)
 
     await clickThought('b')
-    
+
     // Wait for cursor to be on "b"
     await waitUntil(() => {
       const selection = window.getSelection()
       return selection?.focusNode?.textContent === 'b'
     })
-    
+
     await clickThought('b')
 
     // close keyboard
