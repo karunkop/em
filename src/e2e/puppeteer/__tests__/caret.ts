@@ -193,8 +193,18 @@ describe('all platforms', () => {
     await press('Enter')
     await press('Backspace')
 
-    // Wait for caret to move back to the previous thought
-    await waitForEditable('first')
+    // Wait for the caret to be positioned correctly at the end of the previous thought
+    await waitUntil(() => {
+      const selection = window.getSelection()
+      if (!selection?.focusNode) return false
+      const textContext = selection.focusNode.textContent
+      if (textContext !== 'first') return false
+
+      const nodeType = selection.focusNode.nodeType
+      const offset = selection.focusOffset
+      // Check if caret is at the end: offset should be 5 for TEXT_NODE or 1 for ELEMENT_NODE
+      return nodeType === Node.TEXT_NODE ? offset === 'first'.length : offset === 1
+    })
 
     const textContext = await getSelection().focusNode?.textContent
     expect(textContext).toBe('first')
