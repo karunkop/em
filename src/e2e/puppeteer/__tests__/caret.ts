@@ -196,7 +196,16 @@ describe('all platforms', () => {
     // Wait for the selection to stabilize after backspace operation
     await waitUntil(() => {
       const selection = window.getSelection()
-      return selection?.focusNode?.textContent === 'first' && selection?.focusOffset > 0
+      if (!selection?.focusNode || selection.focusNode.textContent !== 'first') {
+        return false
+      }
+
+      // Check if caret is at the end of "first"
+      const nodeType = selection.focusNode.nodeType
+      const offset = selection.focusOffset
+      const expectedOffset = nodeType === Node.TEXT_NODE ? 'first'.length : 1
+
+      return offset === expectedOffset
     })
 
     const textContext = await getSelection().focusNode?.textContent
