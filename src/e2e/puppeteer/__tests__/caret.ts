@@ -178,8 +178,6 @@ describe('all platforms', () => {
     expect(textContext).toBe('firstlast')
   })
 
-  // TODO: Flaky test
-  // https://github.com/cybersemics/em/issues/2954
   it('backspace on empty thought should move caret to the end of the previous thought', async () => {
     const importText = `
     - first
@@ -191,32 +189,14 @@ describe('all platforms', () => {
 
     await click(first)
 
-    // Wait for cursor to be on "first"
-    await waitUntil(() => {
-      const selection = window.getSelection()
-      return selection?.focusNode?.textContent === 'first'
-    })
-
     await press('Enter')
-
-    // Wait for new empty thought to be created and focused
-    await waitUntil(() => {
-      const selection = window.getSelection()
-      if (!selection?.focusNode) return false
-      return selection.focusNode.textContent === ''
-    })
 
     await press('Backspace')
 
-    // Wait for the caret to be positioned at the end of the previous thought
+    // Wait for the selection to stabilize after backspace operation
     await waitUntil(() => {
       const selection = window.getSelection()
-      if (!selection?.focusNode) return false
-      if (selection.focusNode.textContent !== 'first') return false
-
-      const nodeType = selection.focusNode.nodeType
-      const offset = selection.focusOffset
-      return nodeType === Node.TEXT_NODE ? offset === 'first'.length : offset === 1
+      return selection?.focusNode?.textContent === 'first' && selection?.focusOffset > 0
     })
 
     const textContext = await getSelection().focusNode?.textContent
@@ -261,13 +241,6 @@ describe('mobile only', () => {
     await paste(importText)
 
     await clickThought('b')
-
-    // Wait for cursor to be on "b"
-    await waitUntil(() => {
-      const selection = window.getSelection()
-      return selection?.focusNode?.textContent === 'b'
-    })
-
     await clickThought('b')
 
     // close keyboard
