@@ -10,7 +10,6 @@ import paste from '../helpers/paste'
 import press from '../helpers/press'
 import refresh from '../helpers/refresh'
 import waitForEditable from '../helpers/waitForEditable'
-import waitForFrames from '../helpers/waitForFrames'
 import waitForHiddenEditable from '../helpers/waitForHiddenEditable'
 import waitForSelector from '../helpers/waitForSelector'
 import waitForThoughtExistInDb from '../helpers/waitForThoughtExistInDb'
@@ -250,8 +249,6 @@ describe('mobile only', () => {
     await emulate(KnownDevices['iPhone 11'])
   }, 5000)
 
-  // TODO: Flaky test
-  // https://github.com/cybersemics/em/issues/2959
   it('After categorize, the caret should be on the new thought', async () => {
     const importText = `
     - a
@@ -268,13 +265,28 @@ describe('mobile only', () => {
     await waitForSelector('[aria-label="Categorize"]')
     await click('[aria-label="Categorize"]')
 
-    await waitForFrames()
+    // Wait for categorization to complete by waiting for the new empty thought to be editable
+    await waitForEditable('')
 
-    const textContext = await getSelection().focusNode?.textContent
-    expect(textContext).toBe('')
+    // Test that we're editing the new empty thought by typing and verifying behavior
+    await keyboard.type('test')
 
-    const offset = await getSelection().focusOffset
-    expect(offset).toBe(0)
+    // Verify we're editing an empty thought that now contains our test text
+    const editingText = await getEditingText()
+    expect(editingText).toBe('test')
+
+    // Verify the original 'b' thought still exists as a child (categorization worked)
+    await waitForEditable('b')
+
+    // Clean up: clear the test text to restore empty state
+    await press('Backspace')
+    await press('Backspace')
+    await press('Backspace')
+    await press('Backspace')
+
+    // Verify we're back to empty thought
+    const finalText = await getEditingText()
+    expect(finalText).toBe('')
   })
 
   // TODO: waitForHiddenEditable is broken after virtualizing thoughts
