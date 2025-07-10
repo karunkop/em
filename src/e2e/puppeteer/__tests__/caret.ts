@@ -5,6 +5,7 @@ import clickThought from '../helpers/clickThought'
 import emulate from '../helpers/emulate'
 import getEditingText from '../helpers/getEditingText'
 import getSelection from '../helpers/getSelection'
+import keyboard from '../helpers/keyboard'
 import paste from '../helpers/paste'
 import press from '../helpers/press'
 import refresh from '../helpers/refresh'
@@ -193,29 +194,23 @@ describe('all platforms', () => {
 
     await press('Backspace')
 
-    // Wait for the selection to stabilize after backspace operation
-    await waitUntil(() => {
-      const selection = window.getSelection()
-      if (!selection?.focusNode || selection.focusNode.textContent !== 'first') {
-        return false
-      }
+    // Test that caret is at the end by typing and verifying the text appends correctly
+    await keyboard.type('xyz')
 
-      // Check if caret is at the end of "first"
-      const nodeType = selection.focusNode.nodeType
-      const offset = selection.focusOffset
-      const expectedOffset = nodeType === Node.TEXT_NODE ? 'first'.length : 1
+    // Wait for the edited thought to be available and verify text was appended
+    await waitForEditable('firstxyz')
+    // Verify we're still editing the same thought (not a new one)
+    const editingText = await getEditingText()
 
-      return offset === expectedOffset
-    })
+    expect(editingText).toBe('firstxyz')
+    // Clean up: remove the test characters to restore original state
+    await press('Backspace')
+    await press('Backspace')
+    await press('Backspace')
 
-    const textContext = await getSelection().focusNode?.textContent
-    expect(textContext).toBe('first')
-
-    const offset = await getSelection().focusOffset
-
-    // offset at the end of the thought is value.length for TEXT_NODE and 1 for ELEMENT_NODE
-    const focusNodeType = await getSelection().focusNode?.nodeType
-    expect(offset).toBe(focusNodeType === Node.TEXT_NODE ? 'first'.length : 1)
+    // Verify we're back to original state
+    const finalText = await getEditingText()
+    expect(finalText).toBe('first')
   })
 })
 
