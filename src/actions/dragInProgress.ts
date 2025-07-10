@@ -7,7 +7,7 @@ import SimplePath from '../@types/SimplePath'
 import State from '../@types/State'
 import Thunk from '../@types/Thunk'
 import { isSafari } from '../browser'
-import { AlertText, AlertType } from '../constants'
+import { AlertText, AlertType, LongPressState } from '../constants'
 import * as selection from '../device/selection'
 import globals from '../globals'
 import { registerActionMetadata } from '../util/actionMetadata.registry'
@@ -16,11 +16,12 @@ import head from '../util/head'
 import alert, { alertActionCreator } from './alert'
 import { expandHoverDownActionCreator as expandHoverDown } from './expandHoverDown'
 import { expandOnHoverTopActionCreator as expandHoverUp } from './expandHoverUp'
+import { longPressActionCreator } from './longPress'
 
 interface DragInProgressPayload {
   value: boolean
-  // Sets state.draggingThought. Either hoveringPath or file must be set if value is true.
-  draggingThought?: SimplePath
+  // Sets state.draggingThoughts. Either hoveringPath or file must be set if value is true.
+  draggingThoughts?: SimplePath[]
   hoveringPath?: Path
   hoverZone?: DropThoughtZone
   // Sets state.draggingFile. Either hoveringPath or file must be set if value is true.
@@ -32,7 +33,7 @@ interface DragInProgressPayload {
 /** Sets state.dragInProgress to true. */
 const dragInProgress = (
   state: State,
-  { value, draggingThought, draggingFile, hoveringPath, hoverZone, offset, sourceZone }: DragInProgressPayload,
+  { value, draggingThoughts, draggingFile, hoveringPath, hoverZone, offset, sourceZone }: DragInProgressPayload,
 ): State => ({
   ...(value
     ? alert(state, {
@@ -43,7 +44,7 @@ const dragInProgress = (
     : state),
   dragInProgress: value,
   draggingFile: value && draggingFile,
-  draggingThought,
+  draggingThoughts: draggingThoughts || [],
   hoveringPath,
   hoverZone,
   cursorOffset: offset || state.cursorOffset,
@@ -103,6 +104,7 @@ const shaker = Shaker((dispatch: Dispatch) => {
       type: 'dragInProgress',
       value: false,
     },
+    longPressActionCreator({ value: LongPressState.DragCancelled }),
     alertActionCreator('✗ Drag cancelled'),
   ])
 })

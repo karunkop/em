@@ -1,4 +1,5 @@
 import DropThoughtZone from '../@types/DropThoughtZone'
+import { LongPressState } from '../constants'
 import ActionType from './ActionType'
 import Alert from './Alert'
 import Command from './Command'
@@ -52,8 +53,9 @@ interface State {
   draggedSimplePath?: SimplePath
   /** Set to true when dragging a native file. */
   draggingFile?: boolean
-  /** Set to the dragging thought during dragInProgress. */
-  draggingThought?: SimplePath
+  /** Set to the dragging thoughts during dragInProgress. Dragging Thoughts are always maintained in the document order. */
+  draggingThoughts: SimplePath[]
+
   /** Dragging a command or toolbar button in the customizeToolbar modal. */
   dragCommand?: CommandId | null
   /** Type of toolbar-sbutton drop target being hovered over. */
@@ -62,7 +64,7 @@ interface State {
   dragHold?: boolean
   /**
    * Set to true while the user is dragging a thought or file.
-   * DraggingFile or draggingThought must be set while dragInProgress is true.
+   * DraggingFile or draggingThoughts must be set while dragInProgress is true.
    * May be set to false to abort the drag even while react-dnd is still dragging (e.g. by shaking).
    */
   dragInProgress: boolean
@@ -119,6 +121,8 @@ interface State {
   /** The last undoable action that was executed. Usually this is the same as undoPatches.at(-1).actions[0]. However, on undo this will equal redoPatches.at(-1).actions[0]. This is important for special case animatons, like swapParent, that should be enabled not just when the action is originally executed, but also when it is reversed via undo. */
   lastUndoableActionType?: ActionType
   latestCommands: Command[]
+  /** Tracks the state of long press and drag-and-drop. */
+  longPress: LongPressState
   /** When a context is sorted, the manual sort order is saved so that it can be recovered when they cycle back through the sort options. If new thoughts have been added, their order relative to the original thoughts will be indeterminate, but both the old thoughts and the new thoughts will be sorted relative to themselves. The outer Index is keyed by parent ThoughtId, and the inner Index stores the manual ranks of each child at the time the context is sorted. This is stored in memory only and is lost when the app refreshes. */
   manualSortMap: Index<Index<number>>
   modals: Index<{ complete?: boolean }>

@@ -212,6 +212,20 @@ describe('all platforms', () => {
     const finalText = await getEditingText()
     expect(finalText).toBe('first')
   })
+
+  it('caret should move to editable after closing the command palette, then executing a cursor down command', async () => {
+    const importText = `
+      - a`
+
+    await paste(importText)
+
+    await press('p', { meta: true })
+    await press('Escape')
+    await press('ArrowDown')
+
+    const textContext = await getSelection().focusNode?.textContent
+    expect(textContext).toBe('a')
+  })
 })
 
 it('clicking backspace when the caret is at the end of a thought should delete a character.', async () => {

@@ -4,7 +4,7 @@ import State from '../@types/State'
 import Thought from '../@types/Thought'
 import ThoughtIndices from '../@types/ThoughtIndices'
 import Timestamp from '../@types/Timestamp'
-import { ABSOLUTE_TOKEN, EM_TOKEN, HOME_TOKEN, ROOT_PARENT_ID, SCHEMA_LATEST } from '../constants'
+import { ABSOLUTE_TOKEN, EM_TOKEN, HOME_TOKEN, LongPressState, ROOT_PARENT_ID, SCHEMA_LATEST } from '../constants'
 import { clientId, tsidShared } from '../data-providers/yjs'
 import storageModel from '../stores/storageModel'
 import hashThought from '../util/hashThought'
@@ -115,6 +115,7 @@ const initialState = (created: Timestamp = timestamp()) => {
     cursorInitialized: false,
     cursorOffset: 0,
     dragInProgress: false,
+    draggingThoughts: [],
     editableNonce: 0,
     isKeyboardOpen: null,
     enableLatestCommandsDiagram: false,
@@ -128,6 +129,7 @@ const initialState = (created: Timestamp = timestamp()) => {
     jumpHistory: storageModel.get('jumpHistory'),
     jumpIndex: 0,
     latestCommands: [],
+    longPress: LongPressState.Inactive,
     manualSortMap: {},
     modals: {},
     multicursors: {},
