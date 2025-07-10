@@ -10,6 +10,7 @@ import paste from '../helpers/paste'
 import press from '../helpers/press'
 import refresh from '../helpers/refresh'
 import waitForEditable from '../helpers/waitForEditable'
+import waitForFrames from '../helpers/waitForFrames'
 import waitForHiddenEditable from '../helpers/waitForHiddenEditable'
 import waitForSelector from '../helpers/waitForSelector'
 import waitForThoughtExistInDb from '../helpers/waitForThoughtExistInDb'
@@ -267,12 +268,7 @@ describe('mobile only', () => {
     await waitForSelector('[aria-label="Categorize"]')
     await click('[aria-label="Categorize"]')
 
-    // Wait for categorization to complete and caret to move to new thought
-    await waitUntil(() => {
-      const selection = window.getSelection()
-      if (!selection?.focusNode) return false
-      return selection.focusNode.textContent === ''
-    })
+    await waitForFrames()
 
     const textContext = await getSelection().focusNode?.textContent
     expect(textContext).toBe('')
