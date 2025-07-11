@@ -53,8 +53,18 @@ jobs:
       - name: Serve
         run: yarn servebuild &
 
+      - name: Install required fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fonts-dejavu-core fonts-liberation fonts-noto-color-emoji
+
       - name: Test
-        run: yarn test:puppeteer
+        run: |
+          # Set consistent rendering environment variables
+          export PUPPETEER_DISABLE_HEADLESS_WARNING=true
+          export DISPLAY=:99
+          Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+          yarn test:puppeteer
 
       - name: Upload snapshot diff artifact
         if: failure()
