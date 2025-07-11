@@ -7,7 +7,7 @@ import paste from '../helpers/paste'
 import press from '../helpers/press'
 import screenshot from '../helpers/screenshot'
 import scroll from '../helpers/scroll'
-import { waitForStableDOM } from '../helpers/test-utils'
+import waitForStableDOM from '../helpers/test-utils'
 import { page } from '../setup'
 
 expect.extend({
