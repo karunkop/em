@@ -7,7 +7,8 @@ import paste from '../helpers/paste'
 import press from '../helpers/press'
 import screenshot from '../helpers/screenshot'
 import scroll from '../helpers/scroll'
-import waitForFrames from '../helpers/waitForFrames'
+import { waitForStableDOM } from '../helpers/test-utils'
+import { page } from '../setup'
 
 expect.extend({
   toMatchImageSnapshot: configureSnapshots({ fileName: path.basename(__filename).replace('.ts', '') }),
@@ -63,10 +64,8 @@ describe('multiline', () => {
 
     await press('ArrowUp')
 
-    // TODO: Test intermittently fails
-    // e.g. https://github.com/cybersemics/em/actions/runs/13817648331/job/38654935147?pr=2800
-    // Fails with sleep(200): https://github.com/cybersemics/em/actions/runs/14812798110/job/41589583778
-    await waitForFrames()
+    // Add rendering stabilization
+    await waitForStableDOM(page)
 
     const image = await screenshot()
     expect(image).toMatchImageSnapshot({
