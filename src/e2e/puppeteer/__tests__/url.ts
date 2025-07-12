@@ -7,7 +7,7 @@ import paste from '../helpers/paste'
 import press from '../helpers/press'
 import screenshot from '../helpers/screenshot'
 import scroll from '../helpers/scroll'
-import waitForStableDOM, { forceConsistentRendering } from '../helpers/test-utils'
+import waitForStableDOM from '../helpers/test-utils'
 import { page } from '../setup'
 
 expect.extend({
@@ -65,7 +65,6 @@ describe('multiline', () => {
     await press('ArrowUp')
 
     // Add rendering stabilization
-    await forceConsistentRendering(page)
     await waitForStableDOM(page)
 
     const image = await screenshot()
