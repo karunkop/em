@@ -36,8 +36,8 @@ const waitForStableDOM = async (page: Page) =>
  *
  * This function adds a style tag to the page that ensures consistent rendering by disabling animations and ensuring the font is consistent.
  */
-export const forceConsistentRendering = async (page: Page) =>
-  page.addStyleTag({
+export const forceConsistentRendering = async (page: Page) => {
+  await page.addStyleTag({
     content: `
         * {
           font-family: "DejaVu Sans Mono", monospace !important;
@@ -51,5 +51,12 @@ export const forceConsistentRendering = async (page: Page) =>
         }
       `,
   })
+
+  // Hide text cursor and clear selection
+  await page.evaluate(() => {
+    window.getSelection()?.removeAllRanges()
+    document.querySelectorAll('input, textarea').forEach(el => (el as HTMLElement).blur())
+  })
+}
 
 export default waitForStableDOM
