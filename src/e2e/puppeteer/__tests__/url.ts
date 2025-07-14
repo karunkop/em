@@ -7,6 +7,7 @@ import paste from '../helpers/paste'
 import press from '../helpers/press'
 import screenshot from '../helpers/screenshot'
 import scroll from '../helpers/scroll'
+import waitForEditable from '../helpers/waitForEditable'
 
 expect.extend({
   toMatchImageSnapshot: configureSnapshots({ fileName: path.basename(__filename).replace('.ts', '') }),
@@ -53,14 +54,19 @@ describe('multiline', () => {
   const multilineTest = async () => {
     await hideHUD()
 
+    const longUrl =
+      'https://test.com/some/very/very/very/very/very/very/very/very/very/very/very/very/very/very/long/url'
+
     await paste(`
     - https://test.com/single-line
-    - https://test.com/some/very/very/very/very/very/very/very/very/very/very/very/very/very/very/long/url/without-cursor
-    - https://test.com/some/very/very/very/very/very/very/very/very/very/very/very/very/very/very/long/url/with-cursor
+    - ${longUrl}/without-cursor
+    - ${longUrl}/with-cursor
     - This thought tests the line height of the above thought
   `)
 
-    await press('Escape')
+    await press('ArrowUp')
+
+    await waitForEditable(`${longUrl}/with-cursor`)
 
     const image = await screenshot()
     expect(image).toMatchImageSnapshot({
