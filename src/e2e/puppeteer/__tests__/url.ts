@@ -1,5 +1,4 @@
 import path from 'path'
-import sleep from '../../../util/sleep'
 import configureSnapshots from '../configureSnapshots'
 import click from '../helpers/click'
 import hide from '../helpers/hide'
@@ -62,8 +61,6 @@ describe('multiline', () => {
   `)
 
     await press('Escape')
-
-    await sleep(400)
 
     const image = await screenshot()
     expect(image).toMatchImageSnapshot({
