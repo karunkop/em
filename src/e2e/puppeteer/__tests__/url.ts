@@ -7,7 +7,6 @@ import paste from '../helpers/paste'
 import press from '../helpers/press'
 import screenshot from '../helpers/screenshot'
 import scroll from '../helpers/scroll'
-import waitForMultilineLayout from '../helpers/waitForMultilineLayout'
 
 expect.extend({
   toMatchImageSnapshot: configureSnapshots({ fileName: path.basename(__filename).replace('.ts', '') }),
@@ -65,9 +64,6 @@ describe('multiline', () => {
   `)
 
     await press('ArrowUp')
-
-    // Wait for complete layout stabilization before taking screenshot
-    await waitForMultilineLayout(`${longUrl}/with-cursor`)
 
     const image = await screenshot()
     expect(image).toMatchImageSnapshot({
