@@ -13,10 +13,12 @@ import { page } from '../setup'
  * - CI environments have slower frame rates (20-30 FPS vs local 60 FPS).
  * - Fixed timeouts (e.g., `sleep(200)`) fail to capture final render.
  */
-const waitForFrames = () =>
+const waitForFrames = (numberOfFrames = 1) =>
   page.evaluate(() => {
     return new Promise(resolve => {
-      requestAnimationFrame(() => requestAnimationFrame(resolve))
+      for (let i = 0; i < numberOfFrames; i++) {
+        requestAnimationFrame(() => requestAnimationFrame(resolve))
+      }
     })
   })
 
