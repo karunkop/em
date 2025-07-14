@@ -14,12 +14,12 @@ import { page } from '../setup'
  * - Fixed timeouts (e.g., `sleep(200)`) fail to capture final render.
  */
 const waitForFrames = (numberOfFrames = 1) =>
-  page.evaluate(() => {
+  page.evaluate(frames => {
     return new Promise(resolve => {
-      for (let i = 0; i < numberOfFrames; i++) {
+      for (let i = 0; i < frames; i++) {
         requestAnimationFrame(() => requestAnimationFrame(resolve))
       }
     })
-  })
+  }, numberOfFrames)
 
 export default waitForFrames
