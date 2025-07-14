@@ -1,4 +1,5 @@
 import path from 'path'
+import sleep from '../../../util/sleep'
 import configureSnapshots from '../configureSnapshots'
 import click from '../helpers/click'
 import hide from '../helpers/hide'
@@ -7,8 +8,6 @@ import paste from '../helpers/paste'
 import press from '../helpers/press'
 import screenshot from '../helpers/screenshot'
 import scroll from '../helpers/scroll'
-import { forceConsistentRendering } from '../helpers/test-utils'
-import { page } from '../setup'
 
 expect.extend({
   toMatchImageSnapshot: configureSnapshots({ fileName: path.basename(__filename).replace('.ts', '') }),
@@ -62,9 +61,9 @@ describe('multiline', () => {
     - This thought tests the line height of the above thought
   `)
 
-    await press('ArrowUp')
+    await press('Escape')
 
-    await forceConsistentRendering(page)
+    await sleep(400)
 
     const image = await screenshot()
     expect(image).toMatchImageSnapshot({
