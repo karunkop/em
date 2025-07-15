@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import React, { FocusEventHandler, useCallback, useEffect, useRef } from 'react'
 import { shallowEqual, useDispatch, useSelector } from 'react-redux'
-import { cx } from '../../styled-system/css'
+import { css, cx } from '../../styled-system/css'
 import { editableRecipe, invalidOptionRecipe, multilineRecipe } from '../../styled-system/recipes'
 import Path from '../@types/Path'
 import SimplePath from '../@types/SimplePath'
@@ -612,7 +612,17 @@ const Editable = ({
       innerRef={contentRef}
       aria-label={'editable-' + head(path)}
       data-editable
-      className={cx(multiline ? multilineRecipe() : null, editableRecipe(), className)}
+      className={cx(
+        multiline ? multilineRecipe() : null,
+        editableRecipe(),
+        className,
+        // URL-specific override: reduce excessive padding from multiline recipe
+        multiline &&
+          containsURL(value) &&
+          css({
+            paddingBottom: '0.2em !important',
+          }),
+      )}
       html={
         value === EM_TOKEN
           ? '<b>em</b>'
