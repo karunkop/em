@@ -7,10 +7,12 @@ import paste from '../helpers/paste'
 import press from '../helpers/press'
 import screenshot from '../helpers/screenshot'
 import scroll from '../helpers/scroll'
-import waitForFrames from '../helpers/waitForFrames'
 
 expect.extend({
-  toMatchImageSnapshot: configureSnapshots({ fileName: path.basename(__filename).replace('.ts', '') }),
+  toMatchImageSnapshot: configureSnapshots({
+    fileName: path.basename(__filename).replace('.ts', ''),
+    comparisonMethod: 'ssim',
+  }),
 })
 
 vi.setConfig({ testTimeout: 60000, hookTimeout: 20000 })
@@ -36,13 +38,7 @@ it('single line', async () => {
   await press('ArrowUp')
 
   const image = await screenshot()
-  expect(image).toMatchImageSnapshot({
-    customDiffConfig: {
-      // Fails intermittently in the CI with default threshold of 0.18.
-      // See: https://github.com/cybersemics/em/actions/runs/12318388366/job/34418086296?pr=2700
-      threshold: 0.4,
-    },
-  })
+  expect(image).toMatchImageSnapshot()
 })
 
 describe('multiline', () => {
@@ -66,17 +62,8 @@ describe('multiline', () => {
 
     await press('ArrowUp')
 
-    await waitForFrames(5)
-
     const image = await screenshot()
-    expect(image).toMatchImageSnapshot({
-      customDiffConfig: {
-        // Fails intermittently in the CI with default threshold of 0.18.
-        // See: https://github.com/cybersemics/em/actions/runs/12318388366/job/34418086296?pr=2700
-        threshold: 0.4,
-        ssim: 'fast',
-      },
-    })
+    expect(image).toMatchImageSnapshot()
   }
 
   // TODO: Flaky test
