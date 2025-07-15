@@ -7,6 +7,7 @@ import paste from '../helpers/paste'
 import press from '../helpers/press'
 import screenshot from '../helpers/screenshot'
 import scroll from '../helpers/scroll'
+import waitForFrames from '../helpers/waitForFrames'
 
 expect.extend({
   toMatchImageSnapshot: configureSnapshots({
@@ -61,6 +62,8 @@ describe('multiline', () => {
   `)
 
     await press('ArrowUp')
+
+    await waitForFrames(3)
 
     const image = await screenshot()
     expect(image).toMatchImageSnapshot()
