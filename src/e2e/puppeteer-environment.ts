@@ -21,14 +21,6 @@ const PuppeteerEnvironment: Environment = {
       '--no-sandbox',
       '--no-zygote',
       '--ignore-certificate-errors',
-      // Additional flags for visual test consistency
-      '--disable-background-timer-throttling',
-      '--disable-backgrounding-occluded-windows',
-      '--disable-renderer-backgrounding',
-      '--disable-features=TranslateUI',
-      '--disable-ipc-flooding-protection',
-      '--force-color-profile=srgb',
-      '--disable-font-subpixel-positioning',
     ]
 
     const browser = await puppeteer

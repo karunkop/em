@@ -7,13 +7,10 @@ import paste from '../helpers/paste'
 import press from '../helpers/press'
 import screenshot from '../helpers/screenshot'
 import scroll from '../helpers/scroll'
-import waitForFonts from '../helpers/waitForFonts'
 import waitForFrames from '../helpers/waitForFrames'
 
 expect.extend({
-  toMatchImageSnapshot: configureSnapshots({
-    fileName: path.basename(__filename).replace('.ts', ''),
-  }),
+  toMatchImageSnapshot: configureSnapshots({ fileName: path.basename(__filename).replace('.ts', '') }),
 })
 
 vi.setConfig({ testTimeout: 60000, hookTimeout: 20000 })
@@ -63,9 +60,6 @@ describe('multiline', () => {
 
     await press('ArrowUp')
 
-    // Wait for fonts to load first
-    await waitForFonts()
-
     // Wait for 6 animation frames to ensure all layout effects have processed
     await waitForFrames(6)
 
@@ -107,9 +101,6 @@ it('collapsed thought with url child', async () => {
   `)
 
   await press('Escape')
-
-  // Wait for fonts to load before taking screenshot to prevent flakiness
-  await waitForFonts()
 
   const image = await screenshot()
   expect(image).toMatchImageSnapshot()
