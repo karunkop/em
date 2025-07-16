@@ -65,16 +65,8 @@ describe('multiline', () => {
 
     await press('ArrowUp')
 
-    await waitForFrames()
-
     const image = await screenshot()
-    expect(image).toMatchImageSnapshot({
-      customDiffConfig: {
-        // Fails intermittently in the CI with default threshold of 0.18.
-        // See: https://github.com/cybersemics/em/actions/runs/12318388366/job/34418086296?pr=2700
-        threshold: 0.4,
-      },
-    })
+    expect(image).toMatchImageSnapshot()
   }
 
   // TODO: Flaky test
