@@ -22,12 +22,7 @@ const PuppeteerEnvironment: Environment = {
       '--no-zygote',
       '--ignore-certificate-errors',
       // Force headless Chrome to use software rendering
-      '--disable-gpu',
-      '--disable-dev-shm-usage',
-      '--disable-software-rasterizer',
-      '--force-device-scale-factor=1',
       '--font-render-hinting=none',
-      '--disable-font-subpixel-positioning',
       '--disable-lcd-text',
     ]
 
