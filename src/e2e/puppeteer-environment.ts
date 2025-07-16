@@ -1,5 +1,6 @@
 import puppeteer from 'puppeteer-core'
 import { type Environment, builtinEnvironments, populateGlobal } from 'vitest/environments'
+import useSystemFonts from './puppeteer/helpers/useSystemFonts'
 
 /** Puppeteer Environment for vitest. */
 const PuppeteerEnvironment: Environment = {
@@ -34,12 +35,17 @@ const PuppeteerEnvironment: Environment = {
         throw err
       })
 
+    // Create a page and apply system fonts for consistent test rendering
+    const page = await browser.newPage()
+    await useSystemFonts(page)
+
     const { Window, GlobalWindow } = await import('happy-dom')
     const win = new (GlobalWindow || Window)()
 
     const { keys, originals } = populateGlobal(global, {
       ...win,
       browser,
+      page,
     })
 
     return {

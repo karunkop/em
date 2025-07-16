@@ -38,8 +38,7 @@ it('single line', async () => {
   const image = await screenshot()
   expect(image).toMatchImageSnapshot({
     customDiffConfig: {
-      // Fails intermittently in the CI with default threshold of 0.18.
-      // See: https://github.com/cybersemics/em/actions/runs/12318388366/job/34418086296?pr=2700
+      // Using system fonts eliminates font-related flakiness
       threshold: 0.4,
     },
   })
@@ -66,8 +65,8 @@ describe('multiline', () => {
 
     await press('ArrowUp')
 
-    // Wait for 6 animation frames to ensure all layout effects have processed
-    await waitForFrames(6)
+    // Wait for layout effects to stabilize after cursor change
+    await waitForFrames(3)
 
     const image = await screenshot()
     expect(image).toMatchImageSnapshot({
@@ -79,12 +78,8 @@ describe('multiline', () => {
     })
   }
 
-  // TODO: Flaky test
-  // https://github.com/cybersemics/em/issues/2956
   it('Font Size: 18 (default)', multilineTest)
 
-  // TODO: Flaky test
-  // https://github.com/cybersemics/em/issues/2956
   it('Font Size: 13', async () => {
     await click('[data-testid=decrease-font]') // 17
     await click('[data-testid=decrease-font]') // 16
