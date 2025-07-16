@@ -65,8 +65,7 @@ describe('multiline', () => {
 
     await press('ArrowUp')
 
-    // Wait for layout effects to stabilize after cursor change
-    await waitForFrames(3)
+    await waitForFrames(6)
 
     const image = await screenshot()
     expect(image).toMatchImageSnapshot({
