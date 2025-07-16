@@ -139,9 +139,7 @@ describe('Font Size: 22', () => {
 describe('multiline', () => {
   beforeEach(hideHUD)
 
-  // TODO: Flaky test
-  // https://github.com/cybersemics/em/issues/3088
-  it.skip('multiline thought', async () => {
+  it('multiline thought', async () => {
     await paste(`
         - a
         - External objects (bodies) are merely appearances, hence also nothing other than a species of my representations, whose objects are something only through these representations, but are nothing separated from them.
@@ -149,6 +147,7 @@ describe('multiline', () => {
         - c
       `)
 
+    await waitForFrames()
     const image = await screenshot()
     expect(image).toMatchImageSnapshot()
   })
