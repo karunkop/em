@@ -7,12 +7,12 @@ import paste from '../helpers/paste'
 import press from '../helpers/press'
 import screenshot from '../helpers/screenshot'
 import scroll from '../helpers/scroll'
+import waitForFonts from '../helpers/waitForFonts'
 import waitForFrames from '../helpers/waitForFrames'
 
 expect.extend({
   toMatchImageSnapshot: configureSnapshots({
     fileName: path.basename(__filename).replace('.ts', ''),
-    comparisonMethod: 'ssim',
   }),
 })
 
@@ -37,6 +37,9 @@ it('single line', async () => {
   `)
 
   await press('ArrowUp')
+
+  // Wait for fonts to load before taking screenshot to prevent flakiness
+  await waitForFonts()
 
   const image = await screenshot()
   expect(image).toMatchImageSnapshot()
@@ -64,6 +67,9 @@ describe('multiline', () => {
     await press('ArrowUp')
 
     await waitForFrames(3)
+
+    // Wait for fonts to load before taking screenshot to prevent flakiness
+    await waitForFonts()
 
     const image = await screenshot()
     expect(image).toMatchImageSnapshot()
@@ -103,6 +109,9 @@ it('collapsed thought with url child', async () => {
   `)
 
   await press('Escape')
+
+  // Wait for fonts to load before taking screenshot to prevent flakiness
+  await waitForFonts()
 
   const image = await screenshot()
   expect(image).toMatchImageSnapshot()

@@ -64,6 +64,13 @@ const setup = async ({
 
   await page.goto(url)
 
+  // Wait for fonts to load to prevent visual test flakiness
+  try {
+    await page.evaluate(() => document.fonts.ready)
+  } catch (error) {
+    console.warn('Font loading failed during setup - proceeding with test')
+  }
+
   if (skipTutorial) {
     // wait for welcome modal to appear
     await page.waitForSelector('#skip-tutorial')

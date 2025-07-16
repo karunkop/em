@@ -197,11 +197,6 @@ const ThoughtAnnotation = React.memo(
                 margin: '-0.5px 0 0 calc(1em - 18px)',
                 paddingRight: multiline ? '1em' : '0.333em',
                 textAlign: isTableCol1 ? 'right' : 'left',
-                // URL-specific override: reduce excessive padding from multiline recipe
-                ...(multiline &&
-                  url && {
-                    paddingBottom: '0.2em !important',
-                  }),
               }),
             )
             // disable intrathought linking until add, edit, delete, and expansion can be implemented

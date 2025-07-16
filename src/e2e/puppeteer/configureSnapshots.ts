@@ -10,24 +10,18 @@ import path from 'path'
 /** Configures snapshot test settings. */
 function configureSnapshots({
   fileName,
-  comparisonMethod = 'pixelmatch',
 }: {
   /** The file name of the test file (excluding extension). This is used to group snapshots into an identically-named subdirectory. */
   fileName: string
-  comparisonMethod?: 'pixelmatch' | 'ssim'
 }) {
   return configureToMatchImageSnapshot({
-    comparisonMethod,
-    ...(comparisonMethod === 'pixelmatch'
-      ? {
-          customDiffConfig: {
-            // per-pixel failure threshold percent (default: 0.01)
-            // puppeteer anti-aliasing (?) commonly creates small differences in text and svg rendering at different font sizes, so increase the threshold
-            // Bullet SVGs fail even at 0.1
-            threshold: 0.18,
-          },
-        }
-      : {}),
+    customDiffConfig: {
+      // per-pixel failure threshold percent (default: 0.01)
+      // puppeteer anti-aliasing (?) commonly creates small differences in text and svg rendering at different font sizes, so increase the threshold
+      // Bullet SVGs fail even at 0.1
+      threshold: 0.18,
+    },
+
     // full picture failure threshold pixels (default: 0)
     failureThreshold: 4,
     // custom identifier for snapshots based on the title of the test
