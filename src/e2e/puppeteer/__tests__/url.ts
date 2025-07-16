@@ -8,7 +8,7 @@ import press from '../helpers/press'
 import screenshot from '../helpers/screenshot'
 import scroll from '../helpers/scroll'
 import waitForFonts from '../helpers/waitForFonts'
-import waitForFrames from '../helpers/waitForFrames'
+import waitForMultilineStabilization from '../helpers/waitForMultilineStabilization'
 
 expect.extend({
   toMatchImageSnapshot: configureSnapshots({
@@ -38,9 +38,6 @@ it('single line', async () => {
 
   await press('ArrowUp')
 
-  // Wait for fonts to load before taking screenshot to prevent flakiness
-  await waitForFonts()
-
   const image = await screenshot()
   expect(image).toMatchImageSnapshot()
 })
@@ -66,10 +63,11 @@ describe('multiline', () => {
 
     await press('ArrowUp')
 
-    await waitForFrames(3)
-
-    // Wait for fonts to load before taking screenshot to prevent flakiness
+    // Wait for fonts to load first
     await waitForFonts()
+
+    // Wait for multiline layout to fully stabilize
+    await waitForMultilineStabilization()
 
     const image = await screenshot()
     expect(image).toMatchImageSnapshot()
