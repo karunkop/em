@@ -21,9 +21,7 @@ const PuppeteerEnvironment: Environment = {
       '--no-sandbox',
       '--no-zygote',
       '--ignore-certificate-errors',
-      '--enable-font-antialiasing',
       '--font-render-hinting=none',
-      '--disable-gpu',
     ]
 
     const browser = await puppeteer
