@@ -189,10 +189,13 @@ describe('all platforms', () => {
     const first = await waitForEditable('first')
 
     await click(first)
+
+    await waitForFrames()
+
     await press('Enter')
     await press('Backspace')
 
-    await waitForFrames()
+    await waitUntil(() => window.getSelection()?.focusNode?.textContent === 'first')
 
     const textContext = await getSelection().focusNode?.textContent
     expect(textContext).toBe('first')
