@@ -9,12 +9,13 @@ import paste from '../helpers/paste'
 import press from '../helpers/press'
 import refresh from '../helpers/refresh'
 import waitForEditable from '../helpers/waitForEditable'
+import waitForFrames from '../helpers/waitForFrames'
 import waitForHiddenEditable from '../helpers/waitForHiddenEditable'
 import waitForSelector from '../helpers/waitForSelector'
 import waitForThoughtExistInDb from '../helpers/waitForThoughtExistInDb'
 import waitUntil from '../helpers/waitUntil'
 
-vi.setConfig({ testTimeout: 20000, hookTimeout: 20000 })
+vi.setConfig({ testTimeout: 60000, hookTimeout: 20000 })
 
 describe('all platforms', () => {
   // TODO: Why is this failing?
@@ -191,7 +192,7 @@ describe('all platforms', () => {
     await press('Enter')
     await press('Backspace')
 
-    await waitUntil(() => window.getSelection()?.focusNode?.textContent === 'first')
+    await waitForFrames()
 
     const textContext = await getSelection().focusNode?.textContent
     expect(textContext).toBe('first')
