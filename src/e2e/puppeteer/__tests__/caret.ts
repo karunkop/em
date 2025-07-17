@@ -259,12 +259,10 @@ describe('mobile only', () => {
     // close keyboard
     await clickBullet('b')
 
-    await waitForFrames()
-
     await waitForSelector('[aria-label="Categorize"]')
     await click('[aria-label="Categorize"]')
 
-    await waitUntil(() => window.getSelection()?.focusOffset === 0)
+    await waitUntil(() => window.getSelection()?.focusNode?.textContent === '')
 
     const textContext = await getSelection().focusNode?.textContent
     expect(textContext).toBe('')
