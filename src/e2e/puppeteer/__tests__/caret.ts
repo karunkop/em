@@ -5,11 +5,11 @@ import clickThought from '../helpers/clickThought'
 import emulate from '../helpers/emulate'
 import getEditingText from '../helpers/getEditingText'
 import getSelection from '../helpers/getSelection'
-import keyboard from '../helpers/keyboard'
 import paste from '../helpers/paste'
 import press from '../helpers/press'
 import refresh from '../helpers/refresh'
 import waitForEditable from '../helpers/waitForEditable'
+import waitForFrames from '../helpers/waitForFrames'
 import waitForHiddenEditable from '../helpers/waitForHiddenEditable'
 import waitForSelector from '../helpers/waitForSelector'
 import waitForThoughtExistInDb from '../helpers/waitForThoughtExistInDb'
@@ -189,28 +189,19 @@ describe('all platforms', () => {
     const first = await waitForEditable('first')
 
     await click(first)
-
     await press('Enter')
-
     await press('Backspace')
 
-    // Test that caret is at the end by typing and verifying the text appends correctly
-    await keyboard.type('xyz')
+    await waitForFrames()
 
-    // Wait for the edited thought to be available and verify text was appended
-    await waitForEditable('firstxyz')
-    // Verify we're still editing the same thought (not a new one)
-    const editingText = await getEditingText()
+    const textContext = await getSelection().focusNode?.textContent
+    expect(textContext).toBe('first')
 
-    expect(editingText).toBe('firstxyz')
-    // Clean up: remove the test characters to restore original state
-    await press('Backspace')
-    await press('Backspace')
-    await press('Backspace')
+    const offset = await getSelection().focusOffset
 
-    // Verify we're back to original state
-    const finalText = await getEditingText()
-    expect(finalText).toBe('first')
+    // offset at the end of the thought is value.length for TEXT_NODE and 1 for ELEMENT_NODE
+    const focusNodeType = await getSelection().focusNode?.nodeType
+    expect(offset).toBe(focusNodeType === Node.TEXT_NODE ? 'first'.length : 1)
   })
 
   it('caret should move to editable after closing the command palette, then executing a cursor down command', async () => {
@@ -265,28 +256,13 @@ describe('mobile only', () => {
     await waitForSelector('[aria-label="Categorize"]')
     await click('[aria-label="Categorize"]')
 
-    // Wait for categorization to complete by waiting for the new empty thought to be editable
-    await waitForEditable('')
+    await waitForFrames()
 
-    // Test that we're editing the new empty thought by typing and verifying behavior
-    await keyboard.type('test')
+    const textContext = await getSelection().focusNode?.textContent
+    expect(textContext).toBe('')
 
-    // Verify we're editing an empty thought that now contains our test text
-    const editingText = await getEditingText()
-    expect(editingText).toBe('test')
-
-    // Verify the original 'b' thought still exists as a child (categorization worked)
-    await waitForEditable('b')
-
-    // Clean up: clear the test text to restore empty state
-    await press('Backspace')
-    await press('Backspace')
-    await press('Backspace')
-    await press('Backspace')
-
-    // Verify we're back to empty thought
-    const finalText = await getEditingText()
-    expect(finalText).toBe('')
+    const offset = await getSelection().focusOffset
+    expect(offset).toBe(0)
   })
 
   // TODO: waitForHiddenEditable is broken after virtualizing thoughts
