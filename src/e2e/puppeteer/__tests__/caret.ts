@@ -259,12 +259,14 @@ describe('mobile only', () => {
     // close keyboard
     await clickBullet('b')
 
+    await waitForFrames()
+
     await waitForSelector('[aria-label="Categorize"]')
     await click('[aria-label="Categorize"]')
 
     // Wait for DOM and selection to stabilize after categorize
     // Mobile devices need extra frames for Selection API to sync with DOM changes
-    await waitForFrames(6)
+    await waitUntil(() => window.getSelection()?.focusNode?.textContent === '')
 
     const textContext = await getSelection().focusNode?.textContent
     expect(textContext).toBe('')
