@@ -190,8 +190,6 @@ describe('all platforms', () => {
 
     await click(first)
 
-    await waitForFrames()
-
     await press('Enter')
     await press('Backspace')
 
@@ -215,6 +213,9 @@ describe('all platforms', () => {
 
     await press('p', { meta: true })
     await press('Escape')
+
+    await waitForFrames()
+
     await press('ArrowDown')
 
     const textContext = await getSelection().focusNode?.textContent
