@@ -190,6 +190,8 @@ describe('all platforms', () => {
 
     await click(first)
 
+    await waitForFrames()
+
     await press('Enter')
     await press('Backspace')
 
@@ -256,6 +258,8 @@ describe('mobile only', () => {
 
     // close keyboard
     await clickBullet('b')
+
+    await waitForFrames()
 
     await waitForSelector('[aria-label="Categorize"]')
     await click('[aria-label="Categorize"]')
