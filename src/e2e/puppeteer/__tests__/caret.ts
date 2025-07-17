@@ -264,9 +264,7 @@ describe('mobile only', () => {
 
     // Wait for DOM and selection to stabilize after categorize
     // Mobile devices need extra frames for Selection API to sync with DOM changes
-    await waitForFrames(4)
-
-    await waitUntil(() => window.getSelection()?.focusNode?.textContent === '')
+    await waitForFrames(6)
 
     const textContext = await getSelection().focusNode?.textContent
     expect(textContext).toBe('')
