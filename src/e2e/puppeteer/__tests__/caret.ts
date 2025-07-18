@@ -253,7 +253,6 @@ describe('mobile only', () => {
 
     await paste(importText)
 
-    await clickThought('a')
     await clickThought('b')
 
     // close keyboard
