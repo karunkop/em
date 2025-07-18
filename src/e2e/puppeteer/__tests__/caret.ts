@@ -254,18 +254,15 @@ describe('mobile only', () => {
     await paste(importText)
 
     await clickThought('b')
-    await clickThought('b')
-
-    // close keyboard
-    await clickBullet('b')
 
     await waitForFrames()
+    // close keyboard
+    await clickBullet('b')
 
     await waitForSelector('[aria-label="Categorize"]')
     await click('[aria-label="Categorize"]')
 
     // Wait for DOM and selection to stabilize after categorize
-    // Mobile devices need extra frames for Selection API to sync with DOM changes
     await waitUntil(() => window.getSelection()?.focusNode?.textContent === '')
 
     const textContext = await getSelection().focusNode?.textContent
