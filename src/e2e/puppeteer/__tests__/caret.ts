@@ -254,16 +254,15 @@ describe('mobile only', () => {
     await paste(importText)
 
     await clickThought('b')
+    await clickThought('b')
 
-    await waitForFrames()
     // close keyboard
     await clickBullet('b')
 
     await waitForSelector('[aria-label="Categorize"]')
     await click('[aria-label="Categorize"]')
 
-    // Wait for DOM and selection to stabilize after categorize
-    await waitUntil(() => window.getSelection()?.focusNode?.textContent === '')
+    await waitForEditable('')
 
     const textContext = await getSelection().focusNode?.textContent
     expect(textContext).toBe('')
