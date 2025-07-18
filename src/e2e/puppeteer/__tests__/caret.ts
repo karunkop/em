@@ -262,7 +262,7 @@ describe('mobile only', () => {
     await waitForSelector('[aria-label="Categorize"]')
     await click('[aria-label="Categorize"]')
 
-    await waitForFrames(4)
+    await waitForFrames()
 
     const textContext = await getSelection().focusNode?.textContent
     expect(textContext).toBe('')
