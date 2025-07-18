@@ -253,7 +253,7 @@ describe('mobile only', () => {
 
     await paste(importText)
 
-    await clickThought('b')
+    await clickThought('a')
     await clickThought('b')
 
     // close keyboard
@@ -262,7 +262,7 @@ describe('mobile only', () => {
     await waitForSelector('[aria-label="Categorize"]')
     await click('[aria-label="Categorize"]')
 
-    await waitForEditable('')
+    await waitForFrames(4)
 
     const textContext = await getSelection().focusNode?.textContent
     expect(textContext).toBe('')
