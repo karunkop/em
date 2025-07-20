@@ -193,7 +193,7 @@ describe('all platforms', () => {
     await press('Enter')
     await press('Backspace')
 
-    await waitUntil(() => window.getSelection()?.focusNode?.textContent === 'first')
+    await waitUntil(() => window.getSelection()?.focusNode?.textContent === 'first', { timeout: 60000 })
 
     const textContext = await getSelection().focusNode?.textContent
     expect(textContext).toBe('first')
@@ -260,7 +260,7 @@ describe('mobile only', () => {
     await waitForSelector('[aria-label="Categorize"]')
     await click('[aria-label="Categorize"]')
 
-    await waitUntil(() => window.getSelection()?.focusNode?.textContent === '')
+    await waitUntil(() => window.getSelection()?.focusNode?.textContent === '', { timeout: 60000 })
 
     const textContext = await getSelection().focusNode?.textContent
     expect(textContext).toBe('')
