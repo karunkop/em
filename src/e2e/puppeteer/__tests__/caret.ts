@@ -190,8 +190,6 @@ describe('all platforms', () => {
 
     await click(first)
 
-    await waitForFrames()
-
     await press('Enter')
     await press('Backspace')
 
@@ -254,6 +252,7 @@ describe('mobile only', () => {
     await paste(importText)
 
     await clickThought('b')
+    await clickThought('b')
 
     // close keyboard
     await clickBullet('b')
@@ -261,7 +260,7 @@ describe('mobile only', () => {
     await waitForSelector('[aria-label="Categorize"]')
     await click('[aria-label="Categorize"]')
 
-    await waitForFrames()
+    await waitUntil(() => window.getSelection()?.focusNode?.textContent === '')
 
     const textContext = await getSelection().focusNode?.textContent
     expect(textContext).toBe('')
