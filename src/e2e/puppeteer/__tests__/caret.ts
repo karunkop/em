@@ -187,8 +187,7 @@ describe('all platforms', () => {
     await paste(importText)
 
     const first = await waitForEditable('first')
-
-    await click(first)
+    await click(first, { edge: 'right' })
 
     await press('Enter')
     await press('Backspace')
