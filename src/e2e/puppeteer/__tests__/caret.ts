@@ -187,12 +187,24 @@ describe('all platforms', () => {
     await paste(importText)
 
     const first = await waitForEditable('first')
-    await click(first, { edge: 'right' })
+    await click(first)
 
     await press('Enter')
+    // Wait for the empty thought to be created and focused
+    await waitForEditable('', { timeout: 5000 })
+
     await press('Backspace')
 
-    await waitUntil(() => window.getSelection()?.focusNode?.textContent === 'first', { timeout: 60000 })
+    await waitUntil(
+      () => {
+        const selection = window.getSelection()
+        const focusNode = selection?.focusNode
+        const textContent = focusNode?.textContent
+        // Check that we have a valid selection and it's on the 'first' thought
+        return selection && focusNode && textContent === 'first'
+      },
+      { timeout: 30000 },
+    )
 
     const textContext = await getSelection().focusNode?.textContent
     expect(textContext).toBe('first')
@@ -259,7 +271,7 @@ describe('mobile only', () => {
     await waitForSelector('[aria-label="Categorize"]')
     await click('[aria-label="Categorize"]')
 
-    await waitUntil(() => window.getSelection()?.focusNode?.textContent === '', { timeout: 60000 })
+    await waitUntil(() => window.getSelection()?.focusNode?.textContent === '', { timeout: 30000 })
 
     const textContext = await getSelection().focusNode?.textContent
     expect(textContext).toBe('')
