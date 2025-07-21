@@ -29,6 +29,11 @@ describe('categorize', () => {
         - Fusce vulputate eleifend sapien. Vestibulum purus quam, scelerisque ut, mollis sed, nonummy id, metus. Nullam accumsan lorem in dui. Cras ultricies mi eu turpis hendrerit fringilla. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; In ac dui quis mi consectetuer lacinia.
     `)
 
+    // Wait for complex text layout with very long paragraphs to complete (4 frames for extensive content) due to multiple rounds of requestAnimationFrame in useLayoutAnimationFrameEffect
+    // because large text blocks require multiple render cycles for proper wrapping and positioning
+    // otherwise clickThought may not find the correct element or click position
+    await waitForFrames(4)
+
     // Perform multiple categorize operations
     await clickThought(topParagraphText)
 
@@ -51,11 +56,6 @@ describe('categorize', () => {
     // Perform 5th categorization
     await press(']', { meta: true })
     await press('5')
-
-    // Wait for complex text layout with very long paragraphs to complete (4 frames for extensive content) due to multiple rounds of requestAnimationFrame in useLayoutAnimationFrameEffect
-    // because large text blocks require multiple render cycles for proper wrapping and positioning
-    // otherwise clickThought may not find the correct element or click position
-    await waitForFrames(4)
 
     const imageCategorized = await screenshot()
     expect(imageCategorized).toMatchImageSnapshot()
