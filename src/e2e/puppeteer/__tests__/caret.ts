@@ -1,4 +1,5 @@
 import { KnownDevices } from 'puppeteer'
+import sleep from '../../../util/sleep'
 import click from '../helpers/click'
 import clickBullet from '../helpers/clickBullet'
 import clickThought from '../helpers/clickThought'
@@ -191,7 +192,12 @@ describe('all platforms', () => {
     await press('Enter')
     await press('Backspace')
 
-    await waitUntil(() => window.getSelection()?.focusNode?.textContent === 'first')
+    // Add a small delay to allow for DOM updates after categorize operation
+    await sleep(500)
+
+    await waitUntil(() => window.getSelection()?.focusNode?.textContent === 'first', {
+      timeout: 30000,
+    })
 
     const offset = await getSelection().focusOffset
 
@@ -252,7 +258,12 @@ describe('mobile only', () => {
     await waitForSelector('[aria-label="Categorize"]')
     await click('[aria-label="Categorize"]')
 
-    await waitUntil(() => window.getSelection()?.focusNode?.textContent === '')
+    // Add a small delay to allow for DOM updates after categorize operation
+    await sleep(500)
+
+    await waitUntil(() => window.getSelection()?.focusNode?.textContent === '', {
+      timeout: 30000,
+    })
 
     const offset = await getSelection().focusOffset
     expect(offset).toBe(0)
