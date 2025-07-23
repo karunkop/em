@@ -1,5 +1,4 @@
 import { KnownDevices } from 'puppeteer'
-import sleep from '../../../util/sleep'
 import click from '../helpers/click'
 import clickBullet from '../helpers/clickBullet'
 import clickThought from '../helpers/clickThought'
@@ -190,20 +189,36 @@ describe('all platforms', () => {
 
     await click(first)
     await press('Enter')
+
+    // Wait for empty thought to be created
+    await waitForEditable('')
+
     await press('Backspace')
 
-    // Add a small delay to allow for DOM updates after categorize operation
-    await sleep(500)
+    // Wait for the complete deleteEmptyThought cascade to finish:
+    // 1. Empty thought should be removed from DOM
+    // 2. Selection should be on "first" thought
+    // 3. Cursor should be at the end of "first"
+    await waitUntil(
+      () => {
+        // Check that empty thought is gone (only 2 thoughts remain)
+        const editables = document.querySelectorAll('[data-editable]')
+        const hasCorrectCount = editables.length === 2
 
-    await waitUntil(() => window.getSelection()?.focusNode?.textContent === 'first', {
-      timeout: 30000,
-    })
+        // Check that selection is on "first" with correct positioning
+        const selection = window.getSelection()
+        const focusNode = selection?.focusNode
+        const textContent = focusNode?.textContent
+        const isOnFirstThought = textContent === 'first'
 
-    const offset = await getSelection().focusOffset
+        // Check that cursor is at the end (offset should be length of "first")
+        const offset = selection?.focusOffset
+        const isAtEnd = offset === 'first'.length || (focusNode?.nodeType === Node.ELEMENT_NODE && offset === 1)
 
-    // offset at the end of the thought is value.length for TEXT_NODE and 1 for ELEMENT_NODE
-    const focusNodeType = await getSelection().focusNode?.nodeType
-    expect(offset).toBe(focusNodeType === Node.TEXT_NODE ? 'first'.length : 1)
+        return hasCorrectCount && isOnFirstThought && isAtEnd
+      },
+      { timeout: 15000 },
+    )
   })
 
   it('caret should move to editable after closing the command palette, then executing a cursor down command', async () => {
@@ -216,8 +231,13 @@ describe('all platforms', () => {
     await press('Escape')
     await press('ArrowDown')
 
-    const textContext = await getSelection().focusNode?.textContent
-    expect(textContext).toBe('a')
+    // Wait for the caret to move to the editable
+    // because the closing of command palette is asynchronous and the caret may not be in the editable yet
+    // otherwise the test intermittently fails in CI.
+    await waitUntil(() => window.getSelection()?.focusNode?.textContent === 'a')
+
+    // no assertions needed, the test will fail if the caret is not in the editable
+    // If the waitUntil succeeds, the expect will always pass since we just confirmed that exact condition. If waitUntil times out, we never reach the expect anyway.
   })
 })
 
@@ -258,15 +278,30 @@ describe('mobile only', () => {
     await waitForSelector('[aria-label="Categorize"]')
     await click('[aria-label="Categorize"]')
 
-    // Add a small delay to allow for DOM updates after categorize operation
-    await sleep(500)
+    // Wait for the complete categorize operation to finish:
+    // 1. New empty thought should be created (thought count increases)
+    // 2. Selection should be on the new empty thought
+    // 3. Cursor should be at beginning (offset 0)
+    await waitUntil(
+      () => {
+        // Check that a new thought was created (should have 3 thoughts total: a, b, and new empty)
+        const currentEditables = document.querySelectorAll('[data-editable]')
+        const hasNewThought = currentEditables.length === 3
 
-    await waitUntil(() => window.getSelection()?.focusNode?.textContent === '', {
-      timeout: 30000,
-    })
+        // Check that selection is on empty thought
+        const selection = window.getSelection()
+        const focusNode = selection?.focusNode
+        const textContent = focusNode?.textContent
+        const isOnEmptyThought = textContent === ''
 
-    const offset = await getSelection().focusOffset
-    expect(offset).toBe(0)
+        // Check that cursor is at beginning (offset 0)
+        const offset = selection?.focusOffset
+        const isAtBeginning = offset === 0
+
+        return hasNewThought && isOnEmptyThought && isAtBeginning
+      },
+      { timeout: 15000 },
+    )
   })
 
   // TODO: waitForHiddenEditable is broken after virtualizing thoughts
