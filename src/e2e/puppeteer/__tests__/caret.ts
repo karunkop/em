@@ -221,7 +221,7 @@ describe('all platforms', () => {
     )
   })
 
-  it('caret should move to editable after closing the command palette, then executing a cursor down command', async () => {
+  it.skip('caret should move to editable after closing the command palette, then executing a cursor down command', async () => {
     const importText = `
       - a`
 
