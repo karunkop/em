@@ -1,3 +1,4 @@
+import { waitFor } from '@testing-library/dom'
 import { KnownDevices } from 'puppeteer'
 import click from '../helpers/click'
 import clickBullet from '../helpers/clickBullet'
@@ -14,8 +15,9 @@ import waitForHiddenEditable from '../helpers/waitForHiddenEditable'
 import waitForSelector from '../helpers/waitForSelector'
 import waitForThoughtExistInDb from '../helpers/waitForThoughtExistInDb'
 import waitUntil from '../helpers/waitUntil'
+import { page } from '../setup'
 
-vi.setConfig({ testTimeout: 20000, hookTimeout: 20000 })
+vi.setConfig({ testTimeout: 60000, hookTimeout: 20000 })
 
 describe('all platforms', () => {
   // TODO: Why is this failing?
@@ -179,9 +181,7 @@ describe('all platforms', () => {
     expect(textContext).toBe('firstlast')
   })
 
-  // TODO: Flaky test
-  // https://github.com/cybersemics/em/issues/2954
-  testIfNotCI('backspace on empty thought should move caret to the end of the previous thought', async () => {
+  it('backspace on empty thought should move caret to the end of the previous thought', async () => {
     const importText = `
     - first
     - last`
@@ -192,16 +192,25 @@ describe('all platforms', () => {
 
     await click(first)
     await press('Enter')
+    await waitForEditable('')
     await press('Backspace')
 
-    const textContext = await getSelection().focusNode?.textContent
-    expect(textContext).toBe('first')
+    // Use waitFor to retry until selection is updated
+    await waitFor(async () => {
+      const selectionData = await page.evaluate(() => {
+        const selection = window.getSelection()
+        return {
+          textContent: selection?.focusNode?.textContent,
+          offset: selection?.focusOffset,
+          nodeType: selection?.focusNode?.nodeType,
+        }
+      })
 
-    const offset = await getSelection().focusOffset
+      expect(selectionData.textContent).toBe('first')
 
-    // offset at the end of the thought is value.length for TEXT_NODE and 1 for ELEMENT_NODE
-    const focusNodeType = await getSelection().focusNode?.nodeType
-    expect(offset).toBe(focusNodeType === Node.TEXT_NODE ? 'first'.length : 1)
+      const expectedOffset = selectionData.nodeType === Node.TEXT_NODE ? 'first'.length : 1
+      expect(selectionData.offset).toBe(expectedOffset)
+    })
   })
 
   it('caret should move to editable after closing the command palette, then executing a cursor down command', async () => {
