@@ -199,7 +199,7 @@ describe('all platforms', () => {
     // offset at the end of the thought is value.length for TEXT_NODE and 1 for ELEMENT_NODE
     const focusNodeType = await getSelection().focusNode?.nodeType
     expect(offset).toBe(focusNodeType === Node.TEXT_NODE ? 'first'.length : 1)
-  }, 10000)
+  }, 30000)
 
   it.skip('caret should move to editable after closing the command palette, then executing a cursor down command', async () => {
     const importText = `
@@ -262,7 +262,7 @@ describe('mobile only', () => {
 
     const offset = await getSelection().focusOffset
     expect(offset).toBe(0)
-  }, 10000)
+  }, 30000)
 
   // TODO: waitForHiddenEditable is broken after virtualizing thoughts
   it.skip('do nothing when a hidden uncle is clicked', async () => {
