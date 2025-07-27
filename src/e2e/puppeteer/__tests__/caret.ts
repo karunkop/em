@@ -9,7 +9,6 @@ import paste from '../helpers/paste'
 import press from '../helpers/press'
 import refresh from '../helpers/refresh'
 import waitForEditable from '../helpers/waitForEditable'
-import waitForFrames from '../helpers/waitForFrames'
 import waitForHiddenEditable from '../helpers/waitForHiddenEditable'
 import waitForSelector from '../helpers/waitForSelector'
 import waitForThoughtExistInDb from '../helpers/waitForThoughtExistInDb'
@@ -186,8 +185,6 @@ describe('all platforms', () => {
 
     await paste(importText)
 
-    await waitForFrames()
-
     const first = await waitForEditable('first')
 
     await click(first)
@@ -256,8 +253,6 @@ describe('mobile only', () => {
 
     await paste(importText)
 
-    await waitForFrames()
-
     await clickThought('b')
     await clickThought('b')
 
@@ -267,15 +262,11 @@ describe('mobile only', () => {
     await waitForSelector('[aria-label="Categorize"]')
     await click('[aria-label="Categorize"]')
 
-    // Wait for empty thought to be created
-    await waitForEditable('')
-
-    const textContext = await getSelection().focusNode?.textContent
-    expect(textContext).toBe('')
+    await waitUntil(() => window.getSelection()?.focusNode?.textContent === '')
 
     const offset = await getSelection().focusOffset
     expect(offset).toBe(0)
-  })
+  }, 6000)
 
   // TODO: waitForHiddenEditable is broken after virtualizing thoughts
   it.skip('do nothing when a hidden uncle is clicked', async () => {
