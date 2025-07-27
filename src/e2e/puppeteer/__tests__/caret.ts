@@ -9,7 +9,6 @@ import paste from '../helpers/paste'
 import press from '../helpers/press'
 import refresh from '../helpers/refresh'
 import waitForEditable from '../helpers/waitForEditable'
-import waitForFrames from '../helpers/waitForFrames'
 import waitForHiddenEditable from '../helpers/waitForHiddenEditable'
 import waitForSelector from '../helpers/waitForSelector'
 import waitForThoughtExistInDb from '../helpers/waitForThoughtExistInDb'
@@ -186,8 +185,6 @@ describe('all platforms', () => {
 
     await paste(importText)
 
-    await waitForFrames()
-
     const first = await waitForEditable('first')
 
     await click(first)
@@ -195,16 +192,16 @@ describe('all platforms', () => {
 
     await press('Backspace')
 
-    await waitUntil(() => window.getSelection()?.focusNode?.textContent === 'first')
+    const textContext = await getEditingText()
+    expect(textContext).toBe('first')
 
     const offset = await getSelection().focusOffset
-
     // offset at the end of the thought is value.length for TEXT_NODE and 1 for ELEMENT_NODE
     const focusNodeType = await getSelection().focusNode?.nodeType
     expect(offset).toBe(focusNodeType === Node.TEXT_NODE ? 'first'.length : 1)
-  }, 60000)
+  })
 
-  it.skip('caret should move to editable after closing the command palette, then executing a cursor down command', async () => {
+  it('caret should move to editable after closing the command palette, then executing a cursor down command', async () => {
     const importText = `
       - a`
 
@@ -252,8 +249,6 @@ describe('mobile only', () => {
 
     await paste(importText)
 
-    await waitForFrames()
-
     await clickThought('b')
     await clickThought('b')
 
@@ -263,11 +258,13 @@ describe('mobile only', () => {
     await waitForSelector('[aria-label="Categorize"]')
     await click('[aria-label="Categorize"]')
 
-    await waitUntil(() => window.getSelection()?.focusNode?.textContent === '')
+    const textContext = await getEditingText()
+
+    expect(textContext).toBe('')
 
     const offset = await getSelection().focusOffset
     expect(offset).toBe(0)
-  }, 60000)
+  })
 
   // TODO: waitForHiddenEditable is broken after virtualizing thoughts
   it.skip('do nothing when a hidden uncle is clicked', async () => {
