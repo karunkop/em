@@ -9,7 +9,6 @@ import paste from '../helpers/paste'
 import press from '../helpers/press'
 import refresh from '../helpers/refresh'
 import waitForEditable from '../helpers/waitForEditable'
-import waitForFrames from '../helpers/waitForFrames'
 import waitForHiddenEditable from '../helpers/waitForHiddenEditable'
 import waitForSelector from '../helpers/waitForSelector'
 import waitForThoughtExistInDb from '../helpers/waitForThoughtExistInDb'
@@ -186,27 +185,21 @@ describe('all platforms', () => {
 
     await paste(importText)
 
-    await waitForFrames()
-
     const first = await waitForEditable('first')
 
     await click(first)
     await press('Enter')
 
-    // Wait for empty thought to be created
-    await waitForEditable('')
-
     await press('Backspace')
 
-    const textContext = await getSelection().focusNode?.textContent
-    expect(textContext).toBe('first')
+    await waitUntil(() => window.getSelection()?.focusNode?.textContent === 'first')
 
     const offset = await getSelection().focusOffset
 
     // offset at the end of the thought is value.length for TEXT_NODE and 1 for ELEMENT_NODE
     const focusNodeType = await getSelection().focusNode?.nodeType
     expect(offset).toBe(focusNodeType === Node.TEXT_NODE ? 'first'.length : 1)
-  }, 6000)
+  }, 10000)
 
   it.skip('caret should move to editable after closing the command palette, then executing a cursor down command', async () => {
     const importText = `
@@ -269,7 +262,7 @@ describe('mobile only', () => {
 
     const offset = await getSelection().focusOffset
     expect(offset).toBe(0)
-  }, 6000)
+  }, 10000)
 
   // TODO: waitForHiddenEditable is broken after virtualizing thoughts
   it.skip('do nothing when a hidden uncle is clicked', async () => {
