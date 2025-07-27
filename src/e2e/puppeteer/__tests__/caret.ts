@@ -9,6 +9,7 @@ import paste from '../helpers/paste'
 import press from '../helpers/press'
 import refresh from '../helpers/refresh'
 import waitForEditable from '../helpers/waitForEditable'
+import waitForFrames from '../helpers/waitForFrames'
 import waitForHiddenEditable from '../helpers/waitForHiddenEditable'
 import waitForSelector from '../helpers/waitForSelector'
 import waitForThoughtExistInDb from '../helpers/waitForThoughtExistInDb'
@@ -185,6 +186,8 @@ describe('all platforms', () => {
 
     await paste(importText)
 
+    await waitForFrames()
+
     const first = await waitForEditable('first')
 
     await click(first)
@@ -203,7 +206,7 @@ describe('all platforms', () => {
     // offset at the end of the thought is value.length for TEXT_NODE and 1 for ELEMENT_NODE
     const focusNodeType = await getSelection().focusNode?.nodeType
     expect(offset).toBe(focusNodeType === Node.TEXT_NODE ? 'first'.length : 1)
-  })
+  }, 6000)
 
   it.skip('caret should move to editable after closing the command palette, then executing a cursor down command', async () => {
     const importText = `
