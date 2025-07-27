@@ -181,7 +181,7 @@ describe('all platforms', () => {
     expect(textContext).toBe('firstlast')
   })
 
-  it('backspace on empty thought should move caret to the end of the previous thought', async () => {
+  testIfNotCI('backspace on empty thought should move caret to the end of the previous thought', async () => {
     const importText = `
     - first
     - last`

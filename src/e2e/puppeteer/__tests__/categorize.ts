@@ -4,6 +4,7 @@ import clickThought from '../helpers/clickThought'
 import paste from '../helpers/paste'
 import press from '../helpers/press'
 import screenshot from '../helpers/screenshot'
+import waitForScrollEnd from '../helpers/waitForScrollEnd'
 import { page } from '../setup'
 
 expect.extend({
@@ -50,6 +51,9 @@ describe('categorize', () => {
     // Perform 5th categorization
     await press(']', { meta: true })
     await press('5')
+
+    // Wait for the scroll position to stabilize after the categorization
+    await waitForScrollEnd()
 
     const imageCategorized = await screenshot()
     expect(imageCategorized).toMatchImageSnapshot()
