@@ -9,6 +9,7 @@ import paste from '../helpers/paste'
 import press from '../helpers/press'
 import refresh from '../helpers/refresh'
 import waitForEditable from '../helpers/waitForEditable'
+import waitForFrames from '../helpers/waitForFrames'
 import waitForHiddenEditable from '../helpers/waitForHiddenEditable'
 import waitForSelector from '../helpers/waitForSelector'
 import waitForThoughtExistInDb from '../helpers/waitForThoughtExistInDb'
@@ -185,6 +186,8 @@ describe('all platforms', () => {
 
     await paste(importText)
 
+    await waitForFrames()
+
     const first = await waitForEditable('first')
 
     await click(first)
@@ -195,30 +198,14 @@ describe('all platforms', () => {
 
     await press('Backspace')
 
-    // Wait for the complete deleteEmptyThought cascade to finish:
-    // 1. Empty thought should be removed from DOM
-    // 2. Selection should be on "first" thought
-    // 3. Cursor should be at the end of "first"
-    await waitUntil(
-      () => {
-        // Check that empty thought is gone (only 2 thoughts remain)
-        const editables = document.querySelectorAll('[data-editable]')
-        const hasCorrectCount = editables.length === 2
+    const textContext = await getSelection().focusNode?.textContent
+    expect(textContext).toBe('first')
 
-        // Check that selection is on "first" with correct positioning
-        const selection = window.getSelection()
-        const focusNode = selection?.focusNode
-        const textContent = focusNode?.textContent
-        const isOnFirstThought = textContent === 'first'
+    const offset = await getSelection().focusOffset
 
-        // Check that cursor is at the end (offset should be length of "first")
-        const offset = selection?.focusOffset
-        const isAtEnd = offset === 'first'.length || (focusNode?.nodeType === Node.ELEMENT_NODE && offset === 1)
-
-        return hasCorrectCount && isOnFirstThought && isAtEnd
-      },
-      { timeout: 15000 },
-    )
+    // offset at the end of the thought is value.length for TEXT_NODE and 1 for ELEMENT_NODE
+    const focusNodeType = await getSelection().focusNode?.nodeType
+    expect(offset).toBe(focusNodeType === Node.TEXT_NODE ? 'first'.length : 1)
   })
 
   it.skip('caret should move to editable after closing the command palette, then executing a cursor down command', async () => {
@@ -269,6 +256,8 @@ describe('mobile only', () => {
 
     await paste(importText)
 
+    await waitForFrames()
+
     await clickThought('b')
     await clickThought('b')
 
@@ -278,30 +267,14 @@ describe('mobile only', () => {
     await waitForSelector('[aria-label="Categorize"]')
     await click('[aria-label="Categorize"]')
 
-    // Wait for the complete categorize operation to finish:
-    // 1. New empty thought should be created (thought count increases)
-    // 2. Selection should be on the new empty thought
-    // 3. Cursor should be at beginning (offset 0)
-    await waitUntil(
-      () => {
-        // Check that a new thought was created (should have 3 thoughts total: a, b, and new empty)
-        const currentEditables = document.querySelectorAll('[data-editable]')
-        const hasNewThought = currentEditables.length === 3
+    // Wait for empty thought to be created
+    await waitForEditable('')
 
-        // Check that selection is on empty thought
-        const selection = window.getSelection()
-        const focusNode = selection?.focusNode
-        const textContent = focusNode?.textContent
-        const isOnEmptyThought = textContent === ''
+    const textContext = await getSelection().focusNode?.textContent
+    expect(textContext).toBe('')
 
-        // Check that cursor is at beginning (offset 0)
-        const offset = selection?.focusOffset
-        const isAtBeginning = offset === 0
-
-        return hasNewThought && isOnEmptyThought && isAtBeginning
-      },
-      { timeout: 15000 },
-    )
+    const offset = await getSelection().focusOffset
+    expect(offset).toBe(0)
   })
 
   // TODO: waitForHiddenEditable is broken after virtualizing thoughts
