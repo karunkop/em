@@ -9,6 +9,7 @@ import paste from '../helpers/paste'
 import press from '../helpers/press'
 import refresh from '../helpers/refresh'
 import waitForEditable from '../helpers/waitForEditable'
+import waitForFrames from '../helpers/waitForFrames'
 import waitForHiddenEditable from '../helpers/waitForHiddenEditable'
 import waitForSelector from '../helpers/waitForSelector'
 import waitForThoughtExistInDb from '../helpers/waitForThoughtExistInDb'
@@ -192,6 +193,8 @@ describe('all platforms', () => {
 
     await press('Backspace')
 
+    await waitForFrames(4)
+
     const textContext = await getEditingText()
     expect(textContext).toBe('first')
 
@@ -257,6 +260,8 @@ describe('mobile only', () => {
 
     await waitForSelector('[aria-label="Categorize"]')
     await click('[aria-label="Categorize"]')
+
+    await waitForFrames(4)
 
     const textContext = await getEditingText()
 
