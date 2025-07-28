@@ -10,6 +10,7 @@ import paste from '../helpers/paste'
 import press from '../helpers/press'
 import refresh from '../helpers/refresh'
 import waitForEditable from '../helpers/waitForEditable'
+import waitForFrames from '../helpers/waitForFrames'
 import waitForHiddenEditable from '../helpers/waitForHiddenEditable'
 import waitForSelector from '../helpers/waitForSelector'
 import waitForThoughtExistInDb from '../helpers/waitForThoughtExistInDb'
@@ -186,16 +187,16 @@ describe('all platforms', () => {
 
     await paste(importText)
 
+    await waitForFrames()
+
     const first = await waitForEditable('first')
 
     await click(first)
     await press('Enter')
 
-    await waitForEditable('')
-
     await press('Backspace')
 
-    await sleep(50)
+    await waitUntil(() => window.getSelection()?.focusNode?.textContent === 'first')
 
     const offset = await getSelection().focusOffset
     // offset at the end of the thought is value.length for TEXT_NODE and 1 for ELEMENT_NODE
