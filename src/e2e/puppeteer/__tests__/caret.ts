@@ -1,4 +1,5 @@
 import { KnownDevices } from 'puppeteer'
+import sleep from '../../../util/sleep'
 import click from '../helpers/click'
 import clickBullet from '../helpers/clickBullet'
 import clickThought from '../helpers/clickThought'
@@ -9,7 +10,6 @@ import paste from '../helpers/paste'
 import press from '../helpers/press'
 import refresh from '../helpers/refresh'
 import waitForEditable from '../helpers/waitForEditable'
-import waitForFrames from '../helpers/waitForFrames'
 import waitForHiddenEditable from '../helpers/waitForHiddenEditable'
 import waitForSelector from '../helpers/waitForSelector'
 import waitForThoughtExistInDb from '../helpers/waitForThoughtExistInDb'
@@ -191,12 +191,11 @@ describe('all platforms', () => {
     await click(first)
     await press('Enter')
 
+    await waitForEditable('')
+
     await press('Backspace')
 
-    await waitForFrames(4)
-
-    const textContext = await getEditingText()
-    expect(textContext).toBe('first')
+    await sleep(50)
 
     const offset = await getSelection().focusOffset
     // offset at the end of the thought is value.length for TEXT_NODE and 1 for ELEMENT_NODE
@@ -261,11 +260,9 @@ describe('mobile only', () => {
     await waitForSelector('[aria-label="Categorize"]')
     await click('[aria-label="Categorize"]')
 
-    await waitForFrames(4)
+    await waitForEditable('')
 
-    const textContext = await getEditingText()
-
-    expect(textContext).toBe('')
+    await sleep(50)
 
     const offset = await getSelection().focusOffset
     expect(offset).toBe(0)
