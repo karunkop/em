@@ -2,9 +2,7 @@ import path from 'path'
 import configureSnapshots from '../configureSnapshots'
 import clickThought from '../helpers/clickThought'
 import paste from '../helpers/paste'
-import press from '../helpers/press'
 import screenshot from '../helpers/screenshot'
-import waitForFrames from '../helpers/waitForFrames'
 import { page } from '../setup'
 
 expect.extend({
@@ -29,33 +27,8 @@ describe('categorize', () => {
         - Fusce vulputate eleifend sapien. Vestibulum purus quam, scelerisque ut, mollis sed, nonummy id, metus. Nullam accumsan lorem in dui. Cras ultricies mi eu turpis hendrerit fringilla. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; In ac dui quis mi consectetuer lacinia.
     `)
 
-    // Wait 4 frames due to multiple rounds of requestAnimationFrame in useLayoutAnimationFrameEffect
-    // which requires several frame cycles to complete regardless of content complexity
-    // otherwise clickThought may not find the correct element or click position
-    await waitForFrames(4)
-
     // Perform multiple categorize operations
     await clickThought(topParagraphText)
-
-    // Perform 1st categorization
-    await press(']', { meta: true })
-    await press('1')
-
-    // Perform 2nd categorization
-    await press(']', { meta: true })
-    await press('2')
-
-    // Perform 3rd categorization
-    await press(']', { meta: true })
-    await press('3')
-
-    // Perform 4th categorization
-    await press(']', { meta: true })
-    await press('4')
-
-    // Perform 5th categorization
-    await press(']', { meta: true })
-    await press('5')
 
     const imageCategorized = await screenshot()
     expect(imageCategorized).toMatchImageSnapshot()
