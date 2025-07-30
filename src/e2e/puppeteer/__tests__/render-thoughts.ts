@@ -79,11 +79,7 @@ const testSuite = () => {
       await waitForFrames()
       await press('ArrowUp')
 
-      expect(await screenshot()).toMatchImageSnapshot({
-        customDiffConfig: {
-          threshold: 0.4,
-        },
-      })
+      expect(await screenshot()).toMatchImageSnapshot()
     })
   })
 }
@@ -167,11 +163,7 @@ describe('multiline', () => {
     await press('ArrowUp')
 
     const image = await screenshot()
-    expect(image).toMatchImageSnapshot({
-      customDiffConfig: {
-        threshold: 0.4,
-      },
-    })
+    expect(image).toMatchImageSnapshot()
   })
 
   it('superscript on multiline thought', async () => {
@@ -208,11 +200,7 @@ describe('Color Theme', () => {
     await waitForFrames()
     await press('ArrowUp')
 
-    expect(await screenshot()).toMatchImageSnapshot({
-      customDiffConfig: {
-        threshold: 0.4,
-      },
-    })
+    expect(await screenshot()).toMatchImageSnapshot()
   })
 
   // TODO: Test stopped working inexplicably when #2935 was merged, although the changes are unrelated.
