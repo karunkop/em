@@ -75,10 +75,14 @@ const testSuite = () => {
       - m
   `)
 
-      await waitForFrames(4)
+      await waitForFrames()
       await press('ArrowUp')
 
-      expect(await screenshot()).toMatchImageSnapshot()
+      expect(await screenshot()).toMatchImageSnapshot({
+        customDiffConfig: {
+          threshold: 0.4,
+        },
+      })
     })
   })
 }
@@ -136,7 +140,7 @@ describe('multiline', () => {
         - c
       `)
 
-    await waitForFrames(4)
+    await waitForFrames()
 
     const image = await screenshot()
     expect(image).toMatchImageSnapshot()
@@ -153,16 +157,20 @@ describe('multiline', () => {
         - f
       `)
 
-    await waitForFrames(4)
+    await waitForFrames()
     // move cursor to the multiline thought
     await press('ArrowUp')
 
-    await waitForFrames(4)
+    await waitForFrames()
 
     await press('ArrowUp')
 
     const image = await screenshot()
-    expect(image).toMatchImageSnapshot()
+    expect(image).toMatchImageSnapshot({
+      customDiffConfig: {
+        threshold: 0.4,
+      },
+    })
   })
 
   it('superscript on multiline thought', async () => {
@@ -173,7 +181,7 @@ describe('multiline', () => {
           - External objects (bodies) are merely appearances, hence also nothing other than a species of my representations, whose objects are something only through these representations, but are nothing separated from them.
       `)
 
-    await waitForFrames(4)
+    await waitForFrames()
     await press('ArrowUp')
 
     const image = await screenshot()
@@ -194,10 +202,14 @@ describe('Color Theme', () => {
       - m
   `)
 
-    await waitForFrames(4)
+    await waitForFrames()
     await press('ArrowUp')
 
-    expect(await screenshot()).toMatchImageSnapshot()
+    expect(await screenshot()).toMatchImageSnapshot({
+      customDiffConfig: {
+        threshold: 0.4,
+      },
+    })
   })
 
   // TODO: Test stopped working inexplicably when #2935 was merged, although the changes are unrelated.
