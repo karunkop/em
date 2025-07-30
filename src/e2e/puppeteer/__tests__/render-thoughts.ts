@@ -1,5 +1,4 @@
 import path from 'path'
-import sleep from '../../../util/sleep'
 import configureSnapshots from '../configureSnapshots'
 import click from '../helpers/click'
 import clickThought from '../helpers/clickThought'
@@ -81,13 +80,7 @@ const testSuite = () => {
 
       await press('ArrowUp')
 
-      // TODO: Test intermittently fails with small differences in 'b'.
-      // Tested manually with navigator.webdriver = true and 'b' renders at the correct opacity in the next frame, without any animation, so I do not know why this fails.
-      // Example failed test runs:
-      // - https://github.com/cybersemics/em/actions/runs/14236307211
-      // - https://github.com/cybersemics/em/actions/runs/14783509675/job/41507408875?pr=2917
-      // Waiting for requestAnimationFrame does not fix the issue.
-      await waitForFrames()
+      await waitForFrames(4)
 
       expect(await screenshot()).toMatchImageSnapshot()
     })
@@ -139,15 +132,15 @@ describe('Font Size: 22', () => {
 describe('multiline', () => {
   beforeEach(hideHUD)
 
-  // TODO: Flaky test
-  // https://github.com/cybersemics/em/issues/3088
-  it.skip('multiline thought', async () => {
+  it('multiline thought', async () => {
     await paste(`
         - a
         - External objects (bodies) are merely appearances, hence also nothing other than a species of my representations, whose objects are something only through these representations, but are nothing separated from them.
         - b
         - c
       `)
+
+    await waitForFrames(4)
 
     const image = await screenshot()
     expect(image).toMatchImageSnapshot()
@@ -168,8 +161,8 @@ describe('multiline', () => {
     await press('ArrowUp')
     await press('ArrowUp')
 
-    // TODO: Test intermittently fails if not given time to expand.
-    await sleep(100)
+    await waitForFrames(4)
+
     const image = await screenshot()
     expect(image).toMatchImageSnapshot()
   })
@@ -184,11 +177,7 @@ describe('multiline', () => {
 
     await press('ArrowUp')
 
-    // TODO: Test intermittently fails with small differences in 'b'.
-    // Tested manually with navigator.webdriver = true and 'b' renders at the correct opacity in the next frame, without any animation, so I do not know why this fails.
-    // Example failed test run: https://github.com/cybersemics/em/actions/runs/14236307211
-    // Waiting for requestAnimationFrame does not fix the issue.
-    await sleep(200)
+    await waitForFrames(4)
 
     const image = await screenshot()
     expect(image).toMatchImageSnapshot()
@@ -212,13 +201,7 @@ describe('Color Theme', () => {
 
     await press('ArrowUp')
 
-    // TODO: Test intermittently fails with small differences in 'b'.
-    // Tested manually with navigator.webdriver = true and 'b' renders at the correct opacity in the next frame, without any animation, so I do not know why this fails.
-    // Example failed test runs:
-    // - https://github.com/cybersemics/em/actions/runs/14236307211
-    // - https://github.com/cybersemics/em/actions/runs/14783509675/job/41507408875?pr=2917
-    // Waiting for requestAnimationFrame does not fix the issue.
-    await sleep(200)
+    await waitForFrames(4)
 
     expect(await screenshot()).toMatchImageSnapshot()
   })
