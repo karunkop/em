@@ -9,7 +9,6 @@ import press from '../helpers/press'
 import screenshot from '../helpers/screenshot'
 import scroll from '../helpers/scroll'
 import setTheme from '../helpers/setTheme'
-import testIfNotCI from '../helpers/testIfNotCI'
 import waitForFrames from '../helpers/waitForFrames'
 
 expect.extend({
@@ -68,8 +67,6 @@ const testSuite = () => {
       expect(image).toMatchImageSnapshot()
     })
 
-    // TODO: Test intermittently fails with small differences in 'b'.
-    // https://github.com/cybersemics/em/issues/2955
     it('superscript', async () => {
       await paste(`
     - a
@@ -78,9 +75,8 @@ const testSuite = () => {
       - m
   `)
 
+      await waitForFrames()
       await press('ArrowUp')
-
-      await waitForFrames(4)
 
       expect(await screenshot()).toMatchImageSnapshot()
     })
@@ -140,7 +136,7 @@ describe('multiline', () => {
         - c
       `)
 
-    await waitForFrames(4)
+    await waitForFrames()
 
     const image = await screenshot()
     expect(image).toMatchImageSnapshot()
@@ -157,11 +153,13 @@ describe('multiline', () => {
         - f
       `)
 
+    await waitForFrames()
     // move cursor to the multiline thought
     await press('ArrowUp')
-    await press('ArrowUp')
 
-    await waitForFrames(4)
+    await waitForFrames()
+
+    await press('ArrowUp')
 
     const image = await screenshot()
     expect(image).toMatchImageSnapshot()
@@ -175,9 +173,8 @@ describe('multiline', () => {
           - External objects (bodies) are merely appearances, hence also nothing other than a species of my representations, whose objects are something only through these representations, but are nothing separated from them.
       `)
 
+    await waitForFrames()
     await press('ArrowUp')
-
-    await waitForFrames(4)
 
     const image = await screenshot()
     expect(image).toMatchImageSnapshot()
@@ -185,9 +182,7 @@ describe('multiline', () => {
 })
 
 describe('Color Theme', () => {
-  // TODO: Flaky test
-  // https://github.com/cybersemics/em/issues/2955
-  testIfNotCI('superscript on light theme', async () => {
+  it('superscript on light theme', async () => {
     await setTheme('Light')
 
     await hideHUD()
@@ -199,9 +194,8 @@ describe('Color Theme', () => {
       - m
   `)
 
+    await waitForFrames()
     await press('ArrowUp')
-
-    await waitForFrames(4)
 
     expect(await screenshot()).toMatchImageSnapshot()
   })
