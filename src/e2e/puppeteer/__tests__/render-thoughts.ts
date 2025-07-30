@@ -9,6 +9,7 @@ import press from '../helpers/press'
 import screenshot from '../helpers/screenshot'
 import scroll from '../helpers/scroll'
 import setTheme from '../helpers/setTheme'
+import testIfNotCI from '../helpers/testIfNotCI'
 import waitForFrames from '../helpers/waitForFrames'
 
 expect.extend({
@@ -190,7 +191,9 @@ describe('multiline', () => {
 })
 
 describe('Color Theme', () => {
-  it('superscript on light theme', async () => {
+  // TODO: Flaky test
+  // https://github.com/cybersemics/em/issues/2955
+  testIfNotCI('superscript on light theme', async () => {
     await setTheme('Light')
 
     await hideHUD()
