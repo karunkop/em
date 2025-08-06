@@ -17,6 +17,7 @@ describe('categorize', () => {
     await page.setViewport({
       width: 1400,
       height: 1400,
+      deviceScaleFactor: 1,
     })
 
     const topParagraphText =
