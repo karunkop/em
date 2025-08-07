@@ -1,5 +1,4 @@
 import { KnownDevices } from 'puppeteer'
-import sleep from '../../../util/sleep'
 import click from '../helpers/click'
 import clickBullet from '../helpers/clickBullet'
 import clickThought from '../helpers/clickThought'
@@ -10,7 +9,6 @@ import paste from '../helpers/paste'
 import press from '../helpers/press'
 import refresh from '../helpers/refresh'
 import waitForEditable from '../helpers/waitForEditable'
-import waitForFrames from '../helpers/waitForFrames'
 import waitForHiddenEditable from '../helpers/waitForHiddenEditable'
 import waitForSelector from '../helpers/waitForSelector'
 import waitForThoughtExistInDb from '../helpers/waitForThoughtExistInDb'
@@ -187,18 +185,16 @@ describe('all platforms', () => {
 
     await paste(importText)
 
-    await waitForFrames()
+    const editableNodeHandle = await waitForEditable('first')
 
-    const first = await waitForEditable('first')
-
-    await click(first)
+    await click(editableNodeHandle, { edge: 'right' })
     await press('Enter')
-
     await press('Backspace')
 
     await waitUntil(() => window.getSelection()?.focusNode?.textContent === 'first')
 
     const offset = await getSelection().focusOffset
+
     // offset at the end of the thought is value.length for TEXT_NODE and 1 for ELEMENT_NODE
     const focusNodeType = await getSelection().focusNode?.nodeType
     expect(offset).toBe(focusNodeType === Node.TEXT_NODE ? 'first'.length : 1)
@@ -252,8 +248,11 @@ describe('mobile only', () => {
 
     await paste(importText)
 
-    await clickThought('b')
-    await clickThought('b')
+    const editableNodeHandle = await waitForEditable('b')
+    await click(editableNodeHandle, { edge: 'right' })
+
+    const editableNodeHandle2 = await waitForEditable('b')
+    await click(editableNodeHandle2, { edge: 'right' })
 
     // close keyboard
     await clickBullet('b')
@@ -261,9 +260,7 @@ describe('mobile only', () => {
     await waitForSelector('[aria-label="Categorize"]')
     await click('[aria-label="Categorize"]')
 
-    await waitForEditable('')
-
-    await sleep(50)
+    await waitUntil(() => window.getSelection()?.focusNode?.textContent === '')
 
     const offset = await getSelection().focusOffset
     expect(offset).toBe(0)
