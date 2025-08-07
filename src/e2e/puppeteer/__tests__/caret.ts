@@ -1,4 +1,6 @@
+import path from 'path'
 import { KnownDevices } from 'puppeteer'
+import configureSnapshots from '../configureSnapshots'
 import click from '../helpers/click'
 import clickBullet from '../helpers/clickBullet'
 import clickThought from '../helpers/clickThought'
@@ -8,11 +10,16 @@ import getSelection from '../helpers/getSelection'
 import paste from '../helpers/paste'
 import press from '../helpers/press'
 import refresh from '../helpers/refresh'
+import screenshot from '../helpers/screenshot'
 import waitForEditable from '../helpers/waitForEditable'
 import waitForHiddenEditable from '../helpers/waitForHiddenEditable'
 import waitForSelector from '../helpers/waitForSelector'
 import waitForThoughtExistInDb from '../helpers/waitForThoughtExistInDb'
 import waitUntil from '../helpers/waitUntil'
+
+expect.extend({
+  toMatchImageSnapshot: configureSnapshots({ fileName: path.basename(__filename).replace('.ts', '') }),
+})
 
 vi.setConfig({ testTimeout: 60000, hookTimeout: 20000 })
 
@@ -193,6 +200,8 @@ describe('all platforms', () => {
 
     await waitUntil(() => window.getSelection()?.focusNode?.textContent === 'first')
 
+    expect(await screenshot()).toMatchImageSnapshot()
+
     const offset = await getSelection().focusOffset
 
     // offset at the end of the thought is value.length for TEXT_NODE and 1 for ELEMENT_NODE
@@ -259,6 +268,8 @@ describe('mobile only', () => {
 
     await waitForSelector('[aria-label="Categorize"]')
     await click('[aria-label="Categorize"]')
+
+    expect(await screenshot()).toMatchImageSnapshot()
 
     await waitUntil(() => window.getSelection()?.focusNode?.textContent === '')
 
