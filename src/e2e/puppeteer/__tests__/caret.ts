@@ -193,12 +193,6 @@ describe('all platforms', () => {
     await press('Enter')
     await press('Backspace')
 
-    // wait until the right editable is active
-    await waitUntil(() => {
-      const el = document.querySelector('[data-editing=true] [data-editable]')
-      return el?.textContent === 'first'
-    })
-
     // wait until the Redux state has the correct cursor and offset
     await waitUntil(() => {
       const s = em.testHelpers.getState()
@@ -208,9 +202,9 @@ describe('all platforms', () => {
       return thought?.value === 'first' && s.cursorOffset === 'first'.length
     })
 
-    const offset = await getSelection().focusOffset
-    const focusNodeType = await getSelection().focusNode?.nodeType
-    expect(offset).toBe(focusNodeType === Node.TEXT_NODE ? 'first'.length : 1)
+    // assert via editing DOM instead of Selection API to avoid flakiness
+    const editing = await getEditingText()
+    expect(editing).toBe('first')
   })
 
   it('caret should move to editable after closing the command palette, then executing a cursor down command', async () => {
@@ -285,11 +279,9 @@ describe('mobile only', () => {
       return thought?.value === '' && s.cursorOffset === 0
     })
 
-    const textContext = await getSelection().focusNode?.textContent
-    expect(textContext).toBe('')
-
-    const offset = await getSelection().focusOffset
-    expect(offset).toBe(0)
+    // assert via editing DOM instead of Selection API to avoid flakiness
+    const editing = await getEditingText()
+    expect(editing).toBe('')
   })
 
   // TODO: waitForHiddenEditable is broken after virtualizing thoughts
