@@ -1,5 +1,4 @@
 import { KnownDevices } from 'puppeteer'
-import { WindowEm } from '../../../initialize'
 import click from '../helpers/click'
 import clickBullet from '../helpers/clickBullet'
 import clickThought from '../helpers/clickThought'
@@ -10,12 +9,12 @@ import paste from '../helpers/paste'
 import press from '../helpers/press'
 import refresh from '../helpers/refresh'
 import waitForEditable from '../helpers/waitForEditable'
+import waitForEditingState from '../helpers/waitForEditingState'
 import waitForHiddenEditable from '../helpers/waitForHiddenEditable'
 import waitForSelector from '../helpers/waitForSelector'
 import waitForThoughtExistInDb from '../helpers/waitForThoughtExistInDb'
 import waitUntil from '../helpers/waitUntil'
 
-const em = window.em as WindowEm
 vi.setConfig({ testTimeout: 20000, hookTimeout: 20000 })
 
 describe('all platforms', () => {
@@ -191,21 +190,18 @@ describe('all platforms', () => {
 
     await click(first)
     await press('Enter')
+
+    // ensure the new empty thought is active and caret is at offset 0 before Backspace
+    await waitForEditingState('', 0)
     await press('Backspace')
 
     // wait until the Redux state has the correct cursor and offset
-    await waitUntil(() => {
-      const s = em.testHelpers.getState()
-      const cursor = s.cursor
-      if (!cursor) return false
-      const thought = em.getThoughtById(cursor[cursor.length - 1])
-      return thought?.value === 'first' && s.cursorOffset === 'first'.length
-    })
+    await waitForEditingState('first', 'first'.length)
 
     // assert via editing DOM instead of Selection API to avoid flakiness
     const editing = await getEditingText()
     expect(editing).toBe('first')
-  }, 30000)
+  })
 
   it('caret should move to editable after closing the command palette, then executing a cursor down command', async () => {
     const importText = `
@@ -265,24 +261,12 @@ describe('mobile only', () => {
     await click('[aria-label="Categorize"]')
 
     // wait until the right editable is active
-    await waitUntil(() => {
-      const el = document.querySelector('[data-editing=true] [data-editable]')
-      return el?.textContent === ''
-    })
-
-    // wait until the Redux state has the correct cursor and offset
-    await waitUntil(() => {
-      const s = em.testHelpers.getState()
-      const cursor = s.cursor
-      if (!cursor) return false
-      const thought = em.getThoughtById(cursor[cursor.length - 1])
-      return thought?.value === '' && s.cursorOffset === 0
-    })
+    await waitForEditingState('', 0)
 
     // assert via editing DOM instead of Selection API to avoid flakiness
     const editing = await getEditingText()
     expect(editing).toBe('')
-  }, 30000)
+  })
 
   // TODO: waitForHiddenEditable is broken after virtualizing thoughts
   it.skip('do nothing when a hidden uncle is clicked', async () => {
