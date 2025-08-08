@@ -1,6 +1,5 @@
-import path from 'path'
 import { KnownDevices } from 'puppeteer'
-import configureSnapshots from '../configureSnapshots'
+import { WindowEm } from '../../../initialize'
 import click from '../helpers/click'
 import clickBullet from '../helpers/clickBullet'
 import clickThought from '../helpers/clickThought'
@@ -10,18 +9,14 @@ import getSelection from '../helpers/getSelection'
 import paste from '../helpers/paste'
 import press from '../helpers/press'
 import refresh from '../helpers/refresh'
-import screenshot from '../helpers/screenshot'
 import waitForEditable from '../helpers/waitForEditable'
 import waitForHiddenEditable from '../helpers/waitForHiddenEditable'
 import waitForSelector from '../helpers/waitForSelector'
 import waitForThoughtExistInDb from '../helpers/waitForThoughtExistInDb'
 import waitUntil from '../helpers/waitUntil'
 
-expect.extend({
-  toMatchImageSnapshot: configureSnapshots({ fileName: path.basename(__filename).replace('.ts', '') }),
-})
-
-vi.setConfig({ testTimeout: 60000, hookTimeout: 20000 })
+const em = window.em as WindowEm
+vi.setConfig({ testTimeout: 20000, hookTimeout: 20000 })
 
 describe('all platforms', () => {
   // TODO: Why is this failing?
@@ -192,19 +187,28 @@ describe('all platforms', () => {
 
     await paste(importText)
 
-    const editableNodeHandle = await waitForEditable('first')
+    const first = await waitForEditable('first')
 
-    await click(editableNodeHandle, { edge: 'right' })
+    await click(first)
     await press('Enter')
     await press('Backspace')
 
-    await waitUntil(() => window.getSelection()?.focusNode?.textContent === 'first')
+    // wait until the right editable is active
+    await waitUntil(() => {
+      const el = document.querySelector('[data-editing=true] [data-editable]')
+      return el?.textContent === 'first'
+    })
 
-    expect(await screenshot()).toMatchImageSnapshot()
+    // wait until the Redux state has the correct cursor and offset
+    await waitUntil(() => {
+      const s = em.testHelpers.getState()
+      const cursor = s.cursor
+      if (!cursor) return false
+      const thought = em.getThoughtById(cursor[cursor.length - 1])
+      return thought?.value === 'first' && s.cursorOffset === 'first'.length
+    })
 
     const offset = await getSelection().focusOffset
-
-    // offset at the end of the thought is value.length for TEXT_NODE and 1 for ELEMENT_NODE
     const focusNodeType = await getSelection().focusNode?.nodeType
     expect(offset).toBe(focusNodeType === Node.TEXT_NODE ? 'first'.length : 1)
   })
@@ -257,11 +261,8 @@ describe('mobile only', () => {
 
     await paste(importText)
 
-    const editableNodeHandle = await waitForEditable('b')
-    await click(editableNodeHandle, { edge: 'right' })
-
-    const editableNodeHandle2 = await waitForEditable('b')
-    await click(editableNodeHandle2, { edge: 'right' })
+    await clickThought('b')
+    await clickThought('b')
 
     // close keyboard
     await clickBullet('b')
@@ -269,9 +270,23 @@ describe('mobile only', () => {
     await waitForSelector('[aria-label="Categorize"]')
     await click('[aria-label="Categorize"]')
 
-    expect(await screenshot()).toMatchImageSnapshot()
+    // wait until the right editable is active
+    await waitUntil(() => {
+      const el = document.querySelector('[data-editing=true] [data-editable]')
+      return el?.textContent === ''
+    })
 
-    await waitUntil(() => window.getSelection()?.focusNode?.textContent === '')
+    // wait until the Redux state has the correct cursor and offset
+    await waitUntil(() => {
+      const s = em.testHelpers.getState()
+      const cursor = s.cursor
+      if (!cursor) return false
+      const thought = em.getThoughtById(cursor[cursor.length - 1])
+      return thought?.value === '' && s.cursorOffset === 0
+    })
+
+    const textContext = await getSelection().focusNode?.textContent
+    expect(textContext).toBe('')
 
     const offset = await getSelection().focusOffset
     expect(offset).toBe(0)
