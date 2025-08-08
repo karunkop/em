@@ -1,5 +1,4 @@
 import path from 'path'
-import sleep from '../../../util/sleep'
 import configureSnapshots from '../configureSnapshots'
 import click from '../helpers/click'
 import clickThought from '../helpers/clickThought'
@@ -7,11 +6,9 @@ import hide from '../helpers/hide'
 import hideHUD from '../helpers/hideHUD'
 import paste from '../helpers/paste'
 import press from '../helpers/press'
-import screenshot from '../helpers/screenshot'
+import screenshot from '../helpers/screenshot-with-no-antialiasing'
 import scroll from '../helpers/scroll'
 import setTheme from '../helpers/setTheme'
-import testIfNotCI from '../helpers/testIfNotCI'
-import waitForFrames from '../helpers/waitForFrames'
 
 expect.extend({
   toMatchImageSnapshot: configureSnapshots({ fileName: path.basename(__filename).replace('.ts', '') }),
@@ -40,8 +37,7 @@ const testSuite = () => {
       expect(image).toMatchImageSnapshot()
     })
 
-    // TODO: intermitettently only renders up to a/b
-    it.skip('deeply nested', async () => {
+    it('deeply nested', async () => {
       await paste(`
         - a
           - b
@@ -69,8 +65,6 @@ const testSuite = () => {
       expect(image).toMatchImageSnapshot()
     })
 
-    // TODO: Test intermittently fails with small differences in 'b'.
-    // https://github.com/cybersemics/em/issues/2955
     it('superscript', async () => {
       await paste(`
     - a
@@ -80,14 +74,6 @@ const testSuite = () => {
   `)
 
       await press('ArrowUp')
-
-      // TODO: Test intermittently fails with small differences in 'b'.
-      // Tested manually with navigator.webdriver = true and 'b' renders at the correct opacity in the next frame, without any animation, so I do not know why this fails.
-      // Example failed test runs:
-      // - https://github.com/cybersemics/em/actions/runs/14236307211
-      // - https://github.com/cybersemics/em/actions/runs/14783509675/job/41507408875?pr=2917
-      // Waiting for requestAnimationFrame does not fix the issue.
-      await waitForFrames()
 
       expect(await screenshot()).toMatchImageSnapshot()
     })
@@ -139,9 +125,7 @@ describe('Font Size: 22', () => {
 describe('multiline', () => {
   beforeEach(hideHUD)
 
-  // TODO: Flaky test
-  // https://github.com/cybersemics/em/issues/3088
-  it.skip('multiline thought', async () => {
+  it('multiline thought', async () => {
     await paste(`
         - a
         - External objects (bodies) are merely appearances, hence also nothing other than a species of my representations, whose objects are something only through these representations, but are nothing separated from them.
@@ -168,27 +152,19 @@ describe('multiline', () => {
     await press('ArrowUp')
     await press('ArrowUp')
 
-    // TODO: Test intermittently fails if not given time to expand.
-    await sleep(100)
     const image = await screenshot()
     expect(image).toMatchImageSnapshot()
   })
 
   it('superscript on multiline thought', async () => {
+    const multilineThought = `External objects (bodies) are merely appearances, hence also nothing other than a species of my representations, whose objects are something only through these representations, but are nothing separated from them.`
     await paste(`
         - a
-          - External objects (bodies) are merely appearances, hence also nothing other than a species of my representations, whose objects are something only through these representations, but are nothing separated from them.
+          - ${multilineThought}
         - b
-          - External objects (bodies) are merely appearances, hence also nothing other than a species of my representations, whose objects are something only through these representations, but are nothing separated from them.
+          - ${multilineThought}
       `)
-
     await press('ArrowUp')
-
-    // TODO: Test intermittently fails with small differences in 'b'.
-    // Tested manually with navigator.webdriver = true and 'b' renders at the correct opacity in the next frame, without any animation, so I do not know why this fails.
-    // Example failed test run: https://github.com/cybersemics/em/actions/runs/14236307211
-    // Waiting for requestAnimationFrame does not fix the issue.
-    await sleep(200)
 
     const image = await screenshot()
     expect(image).toMatchImageSnapshot()
@@ -196,9 +172,8 @@ describe('multiline', () => {
 })
 
 describe('Color Theme', () => {
-  // TODO: Flaky test
-  // https://github.com/cybersemics/em/issues/2955
-  testIfNotCI('superscript on light theme', async () => {
+  // ProtocolError: Protocol error (Target.createBrowserContext): Session with given id not found.
+  it.skip('superscript on light theme', async () => {
     await setTheme('Light')
 
     await hideHUD()
@@ -211,14 +186,6 @@ describe('Color Theme', () => {
   `)
 
     await press('ArrowUp')
-
-    // TODO: Test intermittently fails with small differences in 'b'.
-    // Tested manually with navigator.webdriver = true and 'b' renders at the correct opacity in the next frame, without any animation, so I do not know why this fails.
-    // Example failed test runs:
-    // - https://github.com/cybersemics/em/actions/runs/14236307211
-    // - https://github.com/cybersemics/em/actions/runs/14783509675/job/41507408875?pr=2917
-    // Waiting for requestAnimationFrame does not fix the issue.
-    await sleep(200)
 
     expect(await screenshot()).toMatchImageSnapshot()
   })

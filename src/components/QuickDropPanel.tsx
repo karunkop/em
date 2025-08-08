@@ -1,3 +1,4 @@
+import pluralize from 'pluralize'
 import { FC, useEffect } from 'react'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
 import { NativeTypes } from 'react-dnd-html5-backend'
@@ -10,6 +11,7 @@ import State from '../@types/State'
 import { alertActionCreator as alert } from '../actions/alert'
 import { archiveThoughtActionCreator as archiveThought } from '../actions/archiveThought'
 import { dragInProgressActionCreator as dragInProgress } from '../actions/dragInProgress'
+import { setIsMulticursorExecutingActionCreator as setIsMulticursorExecuting } from '../actions/setIsMulticursorExecuting'
 import { toggleAttributeActionCreator as toggleAttribute } from '../actions/toggleAttribute'
 import { AlertText, AlertType, DELETE_VIBRATE_DURATION } from '../constants'
 import getThoughtById from '../selectors/getThoughtById'
@@ -19,30 +21,53 @@ import haptics from '../util/haptics'
 import head from '../util/head'
 
 /** Delete the thought on drop. */
-const drop = (state: State, { simplePath, path, zone }: DragThoughtItem) => {
-  const value = getThoughtById(state, head(simplePath))?.value
-  if (value === undefined) {
-    console.warn(`Missing thought for path ${simplePath}. Aborting deleteDrop.`)
-    return
+const drop = (state: State, items: DragThoughtItem[]) => {
+  // Set multicursor executing to true if there are multiple thoughts being dropped
+  if (items.length > 1) {
+    const undoLabel = `Removed ${pluralize('thought', items.length, true)}${items[0].zone === DragThoughtZone.Favorites ? ' from favorites' : ''}`
+    store.dispatch(setIsMulticursorExecuting({ value: true, undoLabel }))
   }
 
-  store.dispatch(dragInProgress({ value: false }))
+  items.forEach(({ simplePath, path, zone }) => {
+    const value = getThoughtById(state, head(simplePath))?.value
+    if (value === undefined) {
+      console.warn(`Missing thought for path ${simplePath}. Aborting deleteDrop.`)
+      return
+    }
 
-  if (zone === DragThoughtZone.Favorites) {
-    haptics.light()
-    store.dispatch([
-      toggleAttribute({ path: simplePath, values: ['=favorite', 'true'] }),
-      alert(`Removed ${ellipsize(value)} from favorites`, {
+    if (zone === DragThoughtZone.Favorites) {
+      haptics.light()
+      store.dispatch([
+        toggleAttribute({ path: simplePath, values: ['=favorite', 'true'] }),
+        alert(`Removed ${ellipsize(value)} from favorites`, {
+          clearDelay: 8000,
+          showCloseLink: true,
+        }),
+      ])
+    } else if (zone === DragThoughtZone.Thoughts) {
+      haptics.vibrate(DELETE_VIBRATE_DURATION)
+      store.dispatch(archiveThought({ path }))
+    } else {
+      console.error(`Unsupported DragThoughtZone: ${zone}`)
+    }
+  })
+
+  // Clear isMulticursorExecuting after all operations are complete if it was set
+  if (items.length > 1) {
+    store.dispatch(setIsMulticursorExecuting({ value: false }))
+  }
+
+  store.dispatch([
+    dragInProgress({ value: false }),
+    // alert for multiple deleted thoughts will override the previous individual alert
+    alert(
+      `Removed ${pluralize('thought', items.length, true)}${items[0].zone === DragThoughtZone.Favorites ? ' from favorites' : ''}`,
+      {
         clearDelay: 8000,
         showCloseLink: true,
-      }),
-    ])
-  } else if (zone === DragThoughtZone.Thoughts) {
-    haptics.vibrate(DELETE_VIBRATE_DURATION)
-    store.dispatch(archiveThought({ path }))
-  } else {
-    console.error(`Unsupported DragThoughtZone: ${zone}`)
-  }
+      },
+    ),
+  ])
 }
 
 /** Show an alert on hover that notifies the user the thought will be copied if dropped on the icon. */
@@ -51,7 +76,7 @@ const hoverMessage = (state: State, zone: DragThoughtZone) => {
   if (length === 0) return ''
 
   const action = zone === DragThoughtZone.Thoughts ? 'delete' : 'remove'
-  const suffix = zone === DragThoughtZone.Thoughts ? '' : ' from favorites'
+  const suffix = zone === DragThoughtZone.Favorites ? ' from favorites' : ''
 
   if (length === 1) {
     const value = getThoughtById(state, head(state.draggingThoughts[0]))?.value
@@ -76,7 +101,11 @@ const dropCollect = (monitor: DropTargetMonitor) => {
 const QuickDropPanel: FC = () => {
   const [{ isHovering, zone }, dropTarget] = useDrop({
     accept: [DragAndDropType.Thought, NativeTypes.FILE],
-    drop: item => drop(store.getState(), item as DragThoughtItem),
+    // item is undefined for some reason, so we need to get it from thn monitor
+    drop: (_, monitor) => {
+      const items = monitor.getItem() as DragThoughtItem[]
+      drop(store.getState(), items)
+    },
     collect: dropCollect,
   })
 
