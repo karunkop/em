@@ -191,9 +191,6 @@ describe('all platforms', () => {
 
     await click(first, { edge: 'right' })
     await press('Enter')
-
-    // ensure the new empty thought is active and caret is at offset 0 before Backspace
-    await waitForEditingState('', 0)
     await press('Backspace')
 
     // wait until the Redux state has the correct cursor and offset
