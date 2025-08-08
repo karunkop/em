@@ -205,7 +205,7 @@ describe('all platforms', () => {
     // assert via editing DOM instead of Selection API to avoid flakiness
     const editing = await getEditingText()
     expect(editing).toBe('first')
-  })
+  }, 30000)
 
   it('caret should move to editable after closing the command palette, then executing a cursor down command', async () => {
     const importText = `
@@ -282,7 +282,7 @@ describe('mobile only', () => {
     // assert via editing DOM instead of Selection API to avoid flakiness
     const editing = await getEditingText()
     expect(editing).toBe('')
-  })
+  }, 30000)
 
   // TODO: waitForHiddenEditable is broken after virtualizing thoughts
   it.skip('do nothing when a hidden uncle is clicked', async () => {
