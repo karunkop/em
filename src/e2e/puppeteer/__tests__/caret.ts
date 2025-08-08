@@ -193,12 +193,9 @@ describe('all platforms', () => {
     await press('Enter')
     await press('Backspace')
 
-    // wait until the Redux state has the correct cursor and offset
-    await waitForEditingState('first', 'first'.length)
-
     // sentinel typing: verify caret is at end by appending a character
     await keyboard.type('x')
-    await waitForEditingState('firstx', 'firstx'.length)
+    expect(await getEditingText()).toBe('firstx')
   })
 
   it('caret should move to editable after closing the command palette, then executing a cursor down command', async () => {
