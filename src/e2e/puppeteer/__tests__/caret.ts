@@ -1,4 +1,5 @@
 import { KnownDevices } from 'puppeteer'
+import sleep from '../../../util/sleep'
 import click from '../helpers/click'
 import clickBullet from '../helpers/clickBullet'
 import clickThought from '../helpers/clickThought'
@@ -189,15 +190,18 @@ describe('all platforms', () => {
 
     await press('Enter')
 
+    const editableNodeHandle = await waitForEditable('')
+    await click(editableNodeHandle, { edge: 'left' })
+
     await press('Backspace')
 
-    //assert the previous thought
-    expect(await getEditingText()).toBe('first')
+    const textContext = await getSelection().focusNode?.textContent
+    expect(textContext).toBe('first')
 
-    // // offset at the end of the thought is value.length for TEXT_NODE and 1 for ELEMENT_NODE
-    // const nodeType = await getSelection().focusNode?.nodeType
-    // const offset = await getSelection().focusOffset
-    // expect(offset).toBe(nodeType === Node.TEXT_NODE ? 'first'.length : 1)
+    // offset at the end of the thought is value.length for TEXT_NODE and 1 for ELEMENT_NODE
+    const nodeType = await getSelection().focusNode?.nodeType
+    const offset = await getSelection().focusOffset
+    expect(offset).toBe(nodeType === Node.TEXT_NODE ? 'first'.length : 1)
   })
 
   it('caret should move to editable after closing the command palette, then executing a cursor down command', async () => {
@@ -248,14 +252,13 @@ describe('mobile only', () => {
 
     await paste(importText)
 
-    const editableNodeHandle = await waitForEditable('b')
-    await click(editableNodeHandle, { edge: 'right' })
-
     await waitForSelector('[aria-label="Categorize"]')
     await click('[aria-label="Categorize"]')
 
+    await sleep(200)
+
     expect(await getEditingText()).toBe('')
-    // expect(await getSelection().focusOffset).toBe(0)
+    expect(await getSelection().focusOffset).toBe(0)
   })
 
   // TODO: waitForHiddenEditable is broken after virtualizing thoughts
