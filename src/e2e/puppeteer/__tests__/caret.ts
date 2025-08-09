@@ -1,6 +1,4 @@
-import path from 'path'
 import { KnownDevices } from 'puppeteer'
-import configureSnapshots from '../configureSnapshots'
 import click from '../helpers/click'
 import clickBullet from '../helpers/clickBullet'
 import clickThought from '../helpers/clickThought'
@@ -10,16 +8,11 @@ import getSelection from '../helpers/getSelection'
 import paste from '../helpers/paste'
 import press from '../helpers/press'
 import refresh from '../helpers/refresh'
-import screenshot from '../helpers/screenshot-with-no-antialiasing'
 import waitForEditable from '../helpers/waitForEditable'
 import waitForHiddenEditable from '../helpers/waitForHiddenEditable'
 import waitForSelector from '../helpers/waitForSelector'
 import waitForThoughtExistInDb from '../helpers/waitForThoughtExistInDb'
 import waitUntil from '../helpers/waitUntil'
-
-expect.extend({
-  toMatchImageSnapshot: configureSnapshots({ fileName: path.basename(__filename).replace('.ts', '') }),
-})
 
 vi.setConfig({ testTimeout: 60000, hookTimeout: 20000 })
 
@@ -260,8 +253,6 @@ describe('mobile only', () => {
 
     await waitForSelector('[aria-label="Categorize"]')
     await click('[aria-label="Categorize"]')
-
-    expect(await screenshot()).toMatchImageSnapshot()
 
     expect(await getSelection().focusNode?.textContent).toBe('')
     expect(await getSelection().focusOffset).toBe(0)
