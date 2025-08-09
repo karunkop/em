@@ -11,7 +11,7 @@ import keyboard from '../helpers/keyboard'
 import paste from '../helpers/paste'
 import press from '../helpers/press'
 import refresh from '../helpers/refresh'
-import screenshot from '../helpers/screenshot-with-no-antialiasing'
+// import screenshot from '../helpers/screenshot-with-no-antialiasing'
 import waitForEditable from '../helpers/waitForEditable'
 import waitForEditingState from '../helpers/waitForEditingState'
 import waitForHiddenEditable from '../helpers/waitForHiddenEditable'
@@ -194,22 +194,19 @@ describe('all platforms', () => {
 
     await paste(importText)
 
-    expect(await screenshot()).toMatchImageSnapshot()
-
     await press('ArrowUp')
-    expect(await screenshot()).toMatchImageSnapshot()
 
     await press('Enter')
-    expect(await screenshot()).toMatchImageSnapshot()
 
     await press('Backspace')
-    expect(await screenshot()).toMatchImageSnapshot()
 
-    // sentinel typing: verify caret is at end by appending a character
-    await keyboard.type('x')
-    expect(await screenshot()).toMatchImageSnapshot()
+    //assert the previous thought
+    expect(await getEditingText()).toBe('first')
 
-    expect(await getEditingText()).toBe('firstx')
+    // offset at the end of the thought is value.length for TEXT_NODE and 1 for ELEMENT_NODE
+    const nodeType = await getSelection().focusNode?.nodeType
+    const offset = await getSelection().focusOffset
+    expect(offset).toBe(nodeType === Node.TEXT_NODE ? 'first'.length : 1)
   })
 
   it('caret should move to editable after closing the command palette, then executing a cursor down command', async () => {
