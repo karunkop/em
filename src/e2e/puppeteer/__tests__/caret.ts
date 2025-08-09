@@ -254,6 +254,8 @@ describe('mobile only', () => {
 
     await press(']', { meta: true })
 
+    await sleep(200)
+
     expect(await getEditingText()).toBe('')
     expect(await getSelection().focusOffset).toBe(0)
   })
