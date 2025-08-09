@@ -7,13 +7,12 @@ import clickThought from '../helpers/clickThought'
 import emulate from '../helpers/emulate'
 import getEditingText from '../helpers/getEditingText'
 import getSelection from '../helpers/getSelection'
-import keyboard from '../helpers/keyboard'
 import paste from '../helpers/paste'
 import press from '../helpers/press'
 import refresh from '../helpers/refresh'
+import screenshot from '../helpers/screenshot'
 // import screenshot from '../helpers/screenshot-with-no-antialiasing'
 import waitForEditable from '../helpers/waitForEditable'
-import waitForEditingState from '../helpers/waitForEditingState'
 import waitForHiddenEditable from '../helpers/waitForHiddenEditable'
 import waitForSelector from '../helpers/waitForSelector'
 import waitForThoughtExistInDb from '../helpers/waitForThoughtExistInDb'
@@ -250,28 +249,23 @@ describe('mobile only', () => {
     await emulate(KnownDevices['iPhone 11'])
   }, 5000)
 
-  it.skip('After categorize, the caret should be on the new thought', async () => {
+  it('After categorize, the caret should be on the new thought', async () => {
     const importText = `
     - a
       - b`
 
     await paste(importText)
 
-    await clickThought('b')
-    await clickThought('b')
-
-    // close keyboard
-    await clickBullet('b')
+    const editableNodeHandle = await waitForEditable('b')
+    await click(editableNodeHandle, { edge: 'right' })
 
     await waitForSelector('[aria-label="Categorize"]')
     await click('[aria-label="Categorize"]')
 
-    // wait until the right editable is active
-    await waitForEditingState('', 0)
+    expect(await screenshot()).toMatchImageSnapshot()
 
-    // sentinel typing: ensure caret is at beginning by typing 'x' and expecting 'x'
-    await keyboard.type('x')
-    await waitForEditingState('x', 1)
+    expect(await getSelection().focusNode?.textContent).toBe('')
+    expect(await getSelection().focusOffset).toBe(0)
   })
 
   // TODO: waitForHiddenEditable is broken after virtualizing thoughts
