@@ -11,7 +11,6 @@ import press from '../helpers/press'
 import refresh from '../helpers/refresh'
 import waitForEditable from '../helpers/waitForEditable'
 import waitForHiddenEditable from '../helpers/waitForHiddenEditable'
-import waitForSelector from '../helpers/waitForSelector'
 import waitForThoughtExistInDb from '../helpers/waitForThoughtExistInDb'
 import waitUntil from '../helpers/waitUntil'
 
@@ -190,10 +189,9 @@ describe('all platforms', () => {
 
     await press('Enter')
 
-    const editableNodeHandle = await waitForEditable('')
-    await click(editableNodeHandle, { edge: 'left' })
-
     await press('Backspace')
+
+    await sleep(200)
 
     const textContext = await getSelection().focusNode?.textContent
     expect(textContext).toBe('first')
@@ -252,10 +250,9 @@ describe('mobile only', () => {
 
     await paste(importText)
 
-    await waitForSelector('[aria-label="Categorize"]')
-    await click('[aria-label="Categorize"]')
+    await clickBullet('b')
 
-    await sleep(200)
+    await press(']', { meta: true })
 
     expect(await getEditingText()).toBe('')
     expect(await getSelection().focusOffset).toBe(0)
