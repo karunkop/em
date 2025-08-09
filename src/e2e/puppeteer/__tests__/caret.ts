@@ -1,4 +1,6 @@
+import path from 'path'
 import { KnownDevices } from 'puppeteer'
+import configureSnapshots from '../configureSnapshots'
 import click from '../helpers/click'
 import clickBullet from '../helpers/clickBullet'
 import clickThought from '../helpers/clickThought'
@@ -9,6 +11,7 @@ import keyboard from '../helpers/keyboard'
 import paste from '../helpers/paste'
 import press from '../helpers/press'
 import refresh from '../helpers/refresh'
+import screenshot from '../helpers/screenshot-with-no-antialiasing'
 import waitForEditable from '../helpers/waitForEditable'
 import waitForEditingState from '../helpers/waitForEditingState'
 import waitForHiddenEditable from '../helpers/waitForHiddenEditable'
@@ -16,7 +19,11 @@ import waitForSelector from '../helpers/waitForSelector'
 import waitForThoughtExistInDb from '../helpers/waitForThoughtExistInDb'
 import waitUntil from '../helpers/waitUntil'
 
-vi.setConfig({ testTimeout: 20000, hookTimeout: 20000 })
+expect.extend({
+  toMatchImageSnapshot: configureSnapshots({ fileName: path.basename(__filename).replace('.ts', '') }),
+})
+
+vi.setConfig({ testTimeout: 60000, hookTimeout: 20000 })
 
 describe('all platforms', () => {
   // TODO: Why is this failing?
@@ -187,14 +194,21 @@ describe('all platforms', () => {
 
     await paste(importText)
 
-    const first = await waitForEditable('first')
+    expect(await screenshot()).toMatchImageSnapshot()
 
-    await click(first, { edge: 'right' })
+    await press('ArrowUp')
+    expect(await screenshot()).toMatchImageSnapshot()
+
     await press('Enter')
+    expect(await screenshot()).toMatchImageSnapshot()
+
     await press('Backspace')
+    expect(await screenshot()).toMatchImageSnapshot()
 
     // sentinel typing: verify caret is at end by appending a character
     await keyboard.type('x')
+    expect(await screenshot()).toMatchImageSnapshot()
+
     expect(await getEditingText()).toBe('firstx')
   })
 
