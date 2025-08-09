@@ -192,7 +192,7 @@ describe('all platforms', () => {
     await press('Backspace')
 
     //assert the previous thought
-    expect(await getEditingText()).toBe('first')
+    expect(await getSelection().focusNode?.textContent).toBe('first')
 
     // offset at the end of the thought is value.length for TEXT_NODE and 1 for ELEMENT_NODE
     const nodeType = await getSelection().focusNode?.nodeType

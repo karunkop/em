@@ -31,7 +31,7 @@ describe('categorize', () => {
 
     // Wait 4 frames due to multiple rounds of requestAnimationFrame in useLayoutAnimationFrameEffect
     // which requires several frame cycles to complete regardless of content complexity
-    await waitForFrames(4)
+    await waitForFrames(6)
     // Perform multiple categorize operations
     await clickThought(topParagraphText)
 
