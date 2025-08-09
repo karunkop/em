@@ -250,11 +250,10 @@ describe('mobile only', () => {
 
     await paste(importText)
 
-    await clickBullet('b')
+    const editableNodeHandle = await waitForEditable('b')
+    await click(editableNodeHandle, { edge: 'right' })
 
     await press(']', { meta: true })
-
-    await sleep(200)
 
     expect(await getEditingText()).toBe('')
     expect(await getSelection().focusOffset).toBe(0)
