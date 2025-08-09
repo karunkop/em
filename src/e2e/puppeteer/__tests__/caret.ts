@@ -247,8 +247,7 @@ describe('mobile only', () => {
 
     await paste(importText)
 
-    const editableNodeHandle = await waitForEditable('b')
-    await click(editableNodeHandle, { edge: 'right' })
+    await clickThought('b')
 
     await press(']', { meta: true })
 
