@@ -1,5 +1,4 @@
 import { KnownDevices } from 'puppeteer'
-import sleep from '../../../util/sleep'
 import click from '../helpers/click'
 import clickBullet from '../helpers/clickBullet'
 import clickThought from '../helpers/clickThought'
@@ -192,11 +191,10 @@ describe('all platforms', () => {
 
     await press('Backspace')
 
-    await sleep(200)
+    // Wait for the caret to move to the previous thought
+    await waitUntil(() => window.getSelection()?.focusNode?.textContent === 'first')
 
-    const textContext = await getSelection().focusNode?.textContent
-    expect(textContext).toBe('first')
-
+    // assert caret is at the end of the previous thought by typing a character
     await keyboard.type('x')
     expect(await getEditingText()).toBe('firstx')
   })
@@ -242,7 +240,7 @@ describe('mobile only', () => {
     await emulate(KnownDevices['iPhone 11'])
   }, 5000)
 
-  it.skip('After categorize, the caret should be on the new thought', async () => {
+  it('After categorize, the caret should be on the new thought', async () => {
     const importText = `
     - a
       - b`
@@ -254,9 +252,10 @@ describe('mobile only', () => {
 
     await press(']', { meta: true })
 
-    await sleep(200)
+    // wait until the caret is in the new empty thought
+    await waitUntil(() => window.getSelection()?.focusNode?.textContent === '')
 
-    expect(await getEditingText()).toBe('')
+    // assert caret is at the beginning of the new thought
     expect(await getSelection().focusOffset).toBe(0)
   })
 
