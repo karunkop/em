@@ -24,28 +24,12 @@ const setup = async ({
   skipTutorial?: boolean
   emulatedDevice?: Device
 } = {}) => {
-  // Prefer incognito contexts locally for isolation, but fall back to the default
-  // browser context in CI or when the remote browser does not support creating
-  // new contexts (avoids: Protocol error (Target.createBrowserContext))
-  const context = await (async () => {
-    try {
-      // In CI, creating new contexts on remote browsers can fail intermittently
-      // with "Session with given id not found." Use default context instead.
-      if (process.env.CI) return puppeteerBrowser.defaultBrowserContext()
-      return await puppeteerBrowser.createBrowserContext()
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.log('Falling back to default browser context due to error creating incognito context:', e)
-      return puppeteerBrowser.defaultBrowserContext()
-    }
-  })()
+  const context = await puppeteerBrowser.createBrowserContext()
 
   // Grant permissions to read and write to the clipboard, only works with https.
   await context.overridePermissions(url.replace(/:\d+/, ''), ['clipboard-read', 'clipboard-write'])
 
-  // newPage must be created from the Browser when using the default context
-  const usingDefaultContext = context === puppeteerBrowser.defaultBrowserContext()
-  page = usingDefaultContext ? await puppeteerBrowser.newPage() : await context.newPage()
+  page = await context.newPage()
 
   if (emulatedDevice) {
     await page.emulate(emulatedDevice)
