@@ -1,4 +1,6 @@
+import path from 'path'
 import { KnownDevices } from 'puppeteer'
+import configureSnapshots from '../configureSnapshots'
 import click from '../helpers/click'
 import clickBullet from '../helpers/clickBullet'
 import clickThought from '../helpers/clickThought'
@@ -9,10 +11,16 @@ import keyboard from '../helpers/keyboard'
 import paste from '../helpers/paste'
 import press from '../helpers/press'
 import refresh from '../helpers/refresh'
+import screenshot from '../helpers/screenshot-with-no-antialiasing'
 import waitForEditable from '../helpers/waitForEditable'
+import waitForEditingState from '../helpers/waitForEditingState'
 import waitForHiddenEditable from '../helpers/waitForHiddenEditable'
 import waitForThoughtExistInDb from '../helpers/waitForThoughtExistInDb'
 import waitUntil from '../helpers/waitUntil'
+
+expect.extend({
+  toMatchImageSnapshot: configureSnapshots({ fileName: path.basename(__filename).replace('.ts', '') }),
+})
 
 vi.setConfig({ testTimeout: 60000, hookTimeout: 20000 })
 
@@ -185,17 +193,23 @@ describe('all platforms', () => {
 
     await paste(importText)
 
+    expect(await screenshot()).toMatchImageSnapshot()
+
     await press('ArrowUp')
 
     await press('Enter')
+    expect(await screenshot()).toMatchImageSnapshot()
 
     await press('Backspace')
+    expect(await screenshot()).toMatchImageSnapshot()
 
-    // Wait for the caret to move to the previous thought
-    await waitUntil(() => window.getSelection()?.focusNode?.textContent === 'first')
+    // Wait for Redux to report caret on previous thought with offset at end
+    await waitForEditingState('first', 'first'.length)
 
     // assert caret is at the end of the previous thought by typing a character
     await keyboard.type('x')
+    expect(await screenshot()).toMatchImageSnapshot()
+
     expect(await getEditingText()).toBe('firstx')
   })
 
@@ -251,11 +265,7 @@ describe('mobile only', () => {
 
     await press(']', { meta: true })
 
-    // wait until the caret is in the new empty thought
-    await waitUntil(() => window.getSelection()?.focusNode?.textContent === '')
-
-    // assert caret is at the beginning of the new thought
-    expect(await getSelection().focusOffset).toBe(0)
+    await waitForEditingState('', 0)
   })
 
   // TODO: waitForHiddenEditable is broken after virtualizing thoughts

@@ -7,7 +7,7 @@ const em = window.em as WindowEm
  * Also verifies that the Redux cursor points to a thought with the same value.
  * Defaults to a 6s timeout like other wait helpers.
  */
-const waitForEditingState = async (value: string, offset?: number, timeout: number = 12000) => {
+const waitForEditingState = async (value: string, offset?: number, timeout: number = 6000) => {
   await page.waitForFunction(
     (value: string, offset?: number) => {
       if (!em) return false
