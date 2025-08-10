@@ -192,12 +192,13 @@ describe('all platforms', () => {
 
     await press('Backspace')
 
-    // Wait for Redux to report caret on previous thought with offset at end
+    // Wait for Redux to update the caret to the previous thought with offset at end
     await waitForEditingState('first', 'first'.length)
 
     // assert caret is at the end of the previous thought by typing a character
     await keyboard.type('x')
 
+    // asserting "firstx" proves that the caret is at the end of the previous thought
     expect(await getEditingText()).toBe('firstx')
   })
 
@@ -251,8 +252,10 @@ describe('mobile only', () => {
 
     await clickThought('b')
 
+    // perform categorize via keyboard shortcut
     await press(']', { meta: true })
 
+    // assert caret is on the new thought which is empty
     await waitForEditingState('', 0)
   })
 
