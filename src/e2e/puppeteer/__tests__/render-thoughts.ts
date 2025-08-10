@@ -173,7 +173,7 @@ describe('multiline', () => {
 
 describe('Color Theme', () => {
   // ProtocolError: Protocol error (Target.createBrowserContext): Session with given id not found.
-  it.skip('superscript on light theme', async () => {
+  it('superscript on light theme', async () => {
     await setTheme('Light')
 
     await hideHUD()
@@ -193,7 +193,7 @@ describe('Color Theme', () => {
   // TODO: Test stopped working inexplicably when #2935 was merged, although the changes are unrelated.
   // ProtocolError: Protocol error (Target.createBrowserContext): Session with given id not found.
   // https://github.com/cybersemics/em/actions/runs/14957632125?pr=2936
-  it.skip('colored and highlighted text', async () => {
+  it('colored and highlighted text', async () => {
     const importText = `
     - Labrador
     - Golden Retriever`
