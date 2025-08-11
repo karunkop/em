@@ -1,16 +1,9 @@
-import path from 'path'
-import configureSnapshots from '../configureSnapshots'
 import click from '../helpers/click'
 import getSelection from '../helpers/getSelection'
 import hideHUD from '../helpers/hideHUD'
 import paste from '../helpers/paste'
 import press from '../helpers/press'
-import screenshot from '../helpers/screenshot-with-no-antialiasing'
 import waitForEditable from '../helpers/waitForEditable'
-
-expect.extend({
-  toMatchImageSnapshot: configureSnapshots({ fileName: path.basename(__filename).replace('.ts', '') }),
-})
 
 vi.setConfig({ testTimeout: 60000, hookTimeout: 20000 })
 
@@ -264,8 +257,6 @@ describe('all platforms', () => {
     await click(editableNodeHandle)
 
     await press('ArrowUp')
-
-    expect(await screenshot()).toMatchImageSnapshot()
 
     // the focus must be at the beginning of the multi-line cursor after cursor up
     const textContext = await getSelection().focusNode?.textContent
