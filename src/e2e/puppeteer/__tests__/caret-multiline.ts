@@ -1,6 +1,5 @@
 import click from '../helpers/click'
 import getSelection from '../helpers/getSelection'
-import hideHUD from '../helpers/hideHUD'
 import paste from '../helpers/paste'
 import press from '../helpers/press'
 import waitForEditable from '../helpers/waitForEditable'
@@ -241,7 +240,6 @@ describe('all platforms', () => {
 
   // test case 10
   it('on cursorUp, the caret should move from the current cursor to the beginning of the multi-line cursor.', async () => {
-    await hideHUD()
     const multiLineCursor =
       "Beautiful antique furnishings fill this quiet, comfortable flat across from the Acropolis museum. AC works great. It is in an heavily touristic area, but the convenience can't be beat. Highly recommended."
     const importText = `
