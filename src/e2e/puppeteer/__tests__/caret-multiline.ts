@@ -3,6 +3,7 @@ import getSelection from '../helpers/getSelection'
 import paste from '../helpers/paste'
 import press from '../helpers/press'
 import waitForEditable from '../helpers/waitForEditable'
+import waitForEditingState from '../helpers/waitForEditingState'
 
 vi.setConfig({ testTimeout: 60000, hookTimeout: 20000 })
 
@@ -255,6 +256,8 @@ describe('all platforms', () => {
     await click(editableNodeHandle)
 
     await press('ArrowUp')
+
+    await waitForEditingState(multiLineCursor, 0)
 
     // the focus must be at the beginning of the multi-line cursor after cursor up
     const textContext = await getSelection().focusNode?.textContent
