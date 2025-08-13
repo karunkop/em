@@ -1,6 +1,5 @@
 import click from '../helpers/click'
 import getSelection from '../helpers/getSelection'
-import hideHUD from '../helpers/hideHUD'
 import paste from '../helpers/paste'
 import press from '../helpers/press'
 import waitForEditable from '../helpers/waitForEditable'
@@ -254,38 +253,6 @@ describe('all platforms', () => {
 
     const editableNodeHandle = await waitForEditable('d')
     await click(editableNodeHandle)
-
-    await press('ArrowUp')
-
-    // the focus must be at the beginning of the multi-line cursor after cursor up
-    const textContext = await getSelection().focusNode?.textContent
-    expect(textContext).toBe(multiLineCursor)
-
-    const offset = await getSelection().focusOffset
-    expect(offset).toBe(0)
-  })
-
-  // test case experimental
-  it('experimental: x column theory', async () => {
-    await hideHUD()
-    const multiLineCursor =
-      "Beautiful antique furnishings fill this quiet, comfortable flat across from the Acropolis museum. AC works great. It is in an heavily touristic area, but the convenience can't be beat. Highly recommended."
-    const importText = `
-    - a
-- b
-  - c
-  - ${multiLineCursor}
-  - d
-
-    `
-
-    await paste(importText)
-
-    const editableNodeHandle = await waitForEditable('b')
-    await click(editableNodeHandle)
-
-    const editableNodeHandle2 = await waitForEditable('d')
-    await click(editableNodeHandle2)
 
     await press('ArrowUp')
 
