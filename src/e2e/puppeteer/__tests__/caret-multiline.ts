@@ -1,9 +1,16 @@
+import path from 'path'
+import configureSnapshots from '../configureSnapshots'
 import click from '../helpers/click'
 import getSelection from '../helpers/getSelection'
+import hideHUD from '../helpers/hideHUD'
 import paste from '../helpers/paste'
 import press from '../helpers/press'
+import screenshot from '../helpers/screenshot-with-no-antialiasing'
 import waitForEditable from '../helpers/waitForEditable'
-import waitForEditingState from '../helpers/waitForEditingState'
+
+expect.extend({
+  toMatchImageSnapshot: configureSnapshots({ fileName: path.basename(__filename).replace('.ts', '') }),
+})
 
 vi.setConfig({ testTimeout: 60000, hookTimeout: 20000 })
 
@@ -241,6 +248,7 @@ describe('all platforms', () => {
 
   // test case 10
   it('on cursorUp, the caret should move from the current cursor to the beginning of the multi-line cursor.', async () => {
+    await hideHUD()
     const multiLineCursor =
       "Beautiful antique furnishings fill this quiet, comfortable flat across from the Acropolis museum. AC works great. It is in an heavily touristic area, but the convenience can't be beat. Highly recommended."
     const importText = `
@@ -252,12 +260,16 @@ describe('all platforms', () => {
 
     await paste(importText)
 
+    expect(await screenshot()).toMatchImageSnapshot()
+
     const editableNodeHandle = await waitForEditable('d')
     await click(editableNodeHandle)
 
+    expect(await screenshot()).toMatchImageSnapshot()
+
     await press('ArrowUp')
 
-    await waitForEditingState(multiLineCursor, 0)
+    expect(await screenshot()).toMatchImageSnapshot()
 
     // the focus must be at the beginning of the multi-line cursor after cursor up
     const textContext = await getSelection().focusNode?.textContent

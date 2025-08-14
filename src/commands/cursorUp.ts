@@ -40,9 +40,7 @@ const cursorUpCommand: Command = {
     if (isProseMode) return false
 
     // use default browser if selection is on the second or greater line of a multi-line editable
-    const isOnFirstLine = selection.isOnFirstLine()
-    console.info('isOnFirstLine', isOnFirstLine)
-    return isOnFirstLine
+    return selection.isOnFirstLine()
   },
   exec: throttleByAnimationFrame((dispatch: Dispatch, getState: () => State, e: KeyboardEvent) => {
     if (e.shiftKey) {
