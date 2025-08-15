@@ -12,7 +12,6 @@ import refresh from '../helpers/refresh'
 import swipe from '../helpers/swipe'
 import waitForEditable from '../helpers/waitForEditable'
 import waitForHiddenEditable from '../helpers/waitForHiddenEditable'
-import waitForSelectionNode from '../helpers/waitForSelectionNode'
 import waitForThoughtExistInDb from '../helpers/waitForThoughtExistInDb'
 import waitUntil from '../helpers/waitUntil'
 
@@ -187,14 +186,12 @@ describe('all platforms', () => {
 
     await paste(importText)
 
-    await press('ArrowUp')
+    const editableNodeHandle = await waitForEditable('first')
+    await click(editableNodeHandle, { edge: 'right' })
 
     await press('Enter')
 
     await press('Backspace')
-
-    // Wait for selection node to be the previous thought with offset at end
-    await waitForSelectionNode('first', 'first'.length)
 
     // assert caret is at the end of the previous thought by typing a character
     await keyboard.type('x')
