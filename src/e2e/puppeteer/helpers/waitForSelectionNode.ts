@@ -10,10 +10,13 @@ const waitForSelectionNode = async (value: string, offset?: number, timeout: num
       if (!editable) return false
 
       const matchesDomValue = editable.textContent === value
+      console.info('matchesDomValue :', matchesDomValue)
 
       const selection = window.getSelection()
       const selectionInEditable = !!selection?.focusNode && editable.contains(selection.focusNode)
+      console.info('selectionInEditable :', selectionInEditable)
       const focusNodeType = window.getSelection()?.focusNode?.nodeType
+      console.info('focusNodeType :', focusNodeType)
 
       const matchesOffset =
         offset == null
