@@ -1,19 +1,27 @@
+import path from 'path'
 import { KnownDevices } from 'puppeteer'
+import configureSnapshots from '../configureSnapshots'
 import click from '../helpers/click'
 import clickBullet from '../helpers/clickBullet'
 import clickThought from '../helpers/clickThought'
 import emulate from '../helpers/emulate'
 import getEditingText from '../helpers/getEditingText'
 import getSelection from '../helpers/getSelection'
+import hideHUD from '../helpers/hideHUD'
 import keyboard from '../helpers/keyboard'
 import paste from '../helpers/paste'
 import press from '../helpers/press'
 import refresh from '../helpers/refresh'
+import screenshot from '../helpers/screenshot-with-no-antialiasing'
 import swipe from '../helpers/swipe'
 import waitForEditable from '../helpers/waitForEditable'
 import waitForHiddenEditable from '../helpers/waitForHiddenEditable'
 import waitForThoughtExistInDb from '../helpers/waitForThoughtExistInDb'
 import waitUntil from '../helpers/waitUntil'
+
+expect.extend({
+  toMatchImageSnapshot: configureSnapshots({ fileName: path.basename(__filename).replace('.ts', '') }),
+})
 
 vi.setConfig({ testTimeout: 60000, hookTimeout: 20000 })
 
@@ -180,21 +188,32 @@ describe('all platforms', () => {
   })
 
   it('backspace on empty thought should move caret to the end of the previous thought', async () => {
+    await hideHUD()
     const importText = `
     - first
     - last`
 
     await paste(importText)
 
+    expect(await screenshot()).toMatchImageSnapshot()
+
     const editableNodeHandle = await waitForEditable('first')
     await click(editableNodeHandle, { edge: 'right' })
 
+    expect(await screenshot()).toMatchImageSnapshot()
+
     await press('Enter')
+
+    expect(await screenshot()).toMatchImageSnapshot()
 
     await press('Backspace')
 
+    expect(await screenshot()).toMatchImageSnapshot()
+
     // assert caret is at the end of the previous thought by typing a character
     await keyboard.type('x')
+
+    expect(await screenshot()).toMatchImageSnapshot()
 
     // asserting "firstx" proves that the caret is at the end of the previous thought
     expect(await getEditingText()).toBe('firstx')
