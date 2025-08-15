@@ -1,4 +1,5 @@
 import Direction from '../../../@types/Direction'
+import sleep from '../../../util/sleep'
 import { page } from '../setup'
 
 /**
@@ -12,19 +13,23 @@ import { page } from '../setup'
  */
 const move = async (x1: number, y1: number, x2: number, y2: number): Promise<void> => {
   const stepSize = 10
-  const xStepSize = x2 > x1 ? stepSize : x1 > x2 ? -stepSize : 0
-  const yStepSize = y2 > y1 ? stepSize : y1 > y2 ? -stepSize : 0
-  let curX = x1
-  let curY = y1
 
-  while (curX < x2 || curY < y2) {
+  // Calculate total distance and number of steps
+  const deltaX = x2 - x1
+  const deltaY = y2 - y1
+  const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY)
+
+  if (distance === 0) return
+
+  const numSteps = Math.max(1, Math.ceil(distance / stepSize))
+  const xStep = deltaX / numSteps
+  const yStep = deltaY / numSteps
+
+  // Generate intermediate points
+  for (let i = 1; i <= numSteps; i++) {
+    const curX = x1 + xStep * i
+    const curY = y1 + yStep * i
     await page.touchscreen.touchMove(curX, curY)
-    if (curX < x2) {
-      curX += xStepSize
-    }
-    if (curY < y2) {
-      curY += yStepSize
-    }
   }
 }
 
@@ -34,8 +39,13 @@ const swipePoints = async (points: { x: number; y: number }[], complete: boolean
 
   await page.touchscreen.touchStart(start.x, start.y)
 
+  // Small delay to ensure touchStart is processed
+  await sleep(10)
+
   for (let i = 1; i < points.length; i++) {
     await move(points[i - 1].x, points[i - 1].y, points[i].x, points[i].y)
+    // Small delay between segments to help gesture recognition
+    await sleep(10)
   }
 
   if (complete) {
@@ -59,9 +69,11 @@ const swipe = async (gesture: string, completeGesture = false) => {
   // Fixed step sizes for consistent gesture behavior
   const stepSize = 80
 
-  // Starting position for the gesture
-  let y = 300
-  let x = 100
+  // Starting position more reliably in gesture zone
+  // For iPhone 15 Pro (393px wide), gesture zone is approximately x < 295px
+  // Use center-left area to ensure we're in the gesture zone
+  let x = 150
+  let y = 350
 
   // Generate points for each direction in the gesture
   const points = [{ x, y }]

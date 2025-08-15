@@ -5,15 +5,15 @@ import clickThought from '../helpers/clickThought'
 import emulate from '../helpers/emulate'
 import getEditingText from '../helpers/getEditingText'
 import getSelection from '../helpers/getSelection'
+import hideHUD from '../helpers/hideHUD'
 import keyboard from '../helpers/keyboard'
 import paste from '../helpers/paste'
 import press from '../helpers/press'
 import refresh from '../helpers/refresh'
-import retry from '../helpers/retry'
+import swipe from '../helpers/swipe'
 import waitForEditable from '../helpers/waitForEditable'
 import waitForHiddenEditable from '../helpers/waitForHiddenEditable'
 import waitForSelectionNode from '../helpers/waitForSelectionNode'
-import waitForSelector from '../helpers/waitForSelector'
 import waitForThoughtExistInDb from '../helpers/waitForThoughtExistInDb'
 import waitUntil from '../helpers/waitUntil'
 
@@ -242,30 +242,27 @@ it('clicking backspace when the caret is at the end of a thought should delete a
 
 describe('mobile only', () => {
   beforeEach(async () => {
-    await emulate(KnownDevices['iPhone 11'])
-  }, 5000)
+    await emulate(KnownDevices['iPhone 15 Pro'])
+  })
 
   it('After categorize, the caret should be on the new thought', async () => {
+    await hideHUD()
     const importText = `
     - a
       - b`
 
     await paste(importText)
 
-    await clickThought('b')
+    const editableHandle = await waitForEditable('b')
+    await click(editableHandle, { edge: 'right' })
 
-    await waitForSelector('[aria-label="Categorize"]')
+    await swipe('lu', true)
 
-    // The tap on the Categorize button sometimes doesn’t register under mobile emulation
-    // When that happens, the action never fires, no new empty thought is created, and waitForSelectionNode('',0) times out.
-    await retry(
-      async () => {
-        await click('[aria-label="Categorize"]')
-        // if the action was successful, the selection node will be the new empty thought with offset 0
-        await waitForSelectionNode('', 0, 400)
-      },
-      { attempts: 2, delayMs: 100 },
-    )
+    const textContext = await getSelection().focusNode?.textContent
+    expect(textContext).toBe('')
+
+    const offset = await getSelection().focusOffset
+    expect(offset).toBe(0)
   })
 
   // TODO: waitForHiddenEditable is broken after virtualizing thoughts
