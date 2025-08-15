@@ -26,6 +26,9 @@ const waitForSelectionNode = async (value: string, offset?: number, timeout: num
               ? selection?.focusOffset === offset
               : selection?.focusOffset === 1)
 
+      console.info('selection?.focusOffset :', selection?.focusOffset)
+      console.info('matchesOffset :', matchesOffset)
+
       return matchesDomValue && matchesOffset
     },
     { timeout },
