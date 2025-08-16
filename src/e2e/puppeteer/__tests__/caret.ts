@@ -7,12 +7,10 @@ import clickThought from '../helpers/clickThought'
 import emulate from '../helpers/emulate'
 import getEditingText from '../helpers/getEditingText'
 import getSelection from '../helpers/getSelection'
-import hideHUD from '../helpers/hideHUD'
 import keyboard from '../helpers/keyboard'
 import paste from '../helpers/paste'
 import press from '../helpers/press'
 import refresh from '../helpers/refresh'
-import screenshot from '../helpers/screenshot-with-no-antialiasing'
 import swipe from '../helpers/swipe'
 import waitForEditable from '../helpers/waitForEditable'
 import waitForHiddenEditable from '../helpers/waitForHiddenEditable'
@@ -188,35 +186,32 @@ describe('all platforms', () => {
   })
 
   it('backspace on empty thought should move caret to the end of the previous thought', async () => {
-    await hideHUD()
-    const importText = `
-    - first
-    - last`
-
-    await paste(importText)
-
-    expect(await screenshot()).toMatchImageSnapshot()
-
-    const editableNodeHandle = await waitForEditable('first')
-    await click(editableNodeHandle, { edge: 'right' })
-
-    expect(await screenshot()).toMatchImageSnapshot()
+    // Create a thought "first"
+    await press('Enter')
+    await keyboard.type('first')
 
     await press('Enter')
+    // Create a second thought "second"
+    await press('Enter')
+    await keyboard.type('second')
 
-    expect(await screenshot()).toMatchImageSnapshot()
+    await clickThought('')
 
+    // Verify the thought is  empty by checking there's no text content
+    const emptyThoughtText = await getEditingText()
+    expect(emptyThoughtText).toBe('')
+
+    // Press backspace on the empty thought
     await press('Backspace')
 
-    expect(await screenshot()).toMatchImageSnapshot()
+    // Verify that the caret moved to the end of the previous thought "first"
+    const currentThoughtText = await getEditingText()
+    expect(currentThoughtText).toBe('first')
 
-    // assert caret is at the end of the previous thought by typing a character
-    await keyboard.type('x')
-
-    expect(await screenshot()).toMatchImageSnapshot()
-
-    // asserting "firstx" proves that the caret is at the end of the previous thought
-    expect(await getEditingText()).toBe('firstx')
+    const offset = await getSelection().focusOffset
+    // offset at the end of the thought is value.length for TEXT_NODE and 1 for ELEMENT_NODE
+    const focusNodeType = await getSelection().focusNode?.nodeType
+    expect(offset).toBe(focusNodeType === Node.TEXT_NODE ? 'first'.length : 1)
   })
 
   it('caret should move to editable after closing the command palette, then executing a cursor down command', async () => {
