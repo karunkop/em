@@ -7,7 +7,6 @@ import clickThought from '../helpers/clickThought'
 import emulate from '../helpers/emulate'
 import getEditingText from '../helpers/getEditingText'
 import getSelection from '../helpers/getSelection'
-import keyboard from '../helpers/keyboard'
 import paste from '../helpers/paste'
 import press from '../helpers/press'
 import refresh from '../helpers/refresh'
@@ -186,27 +185,32 @@ describe('all platforms', () => {
   })
 
   it('backspace on empty thought should move caret to the end of the previous thought', async () => {
-    // Create a thought "first"
+    const importText = `
+    - first
+    - last`
+
+    await paste(importText)
+    const editableNodeHandle = await waitForEditable('first')
+    await click(editableNodeHandle, { offset: 5 })
     await press('Enter')
-    await keyboard.type('first')
 
-    await press('Enter')
-    // Create a second thought "second"
-    await press('Enter')
-    await keyboard.type('second')
+    expect(await getEditingText()).toBe('')
 
-    await clickThought('')
-
-    // Verify the thought is  empty by checking there's no text content
-    const emptyThoughtText = await getEditingText()
-    expect(emptyThoughtText).toBe('')
-
-    // Press backspace on the empty thought
     await press('Backspace')
 
     // Verify that the caret moved to the end of the previous thought "first"
     const currentThoughtText = await getEditingText()
     expect(currentThoughtText).toBe('first')
+
+    console.info(
+      'focusOffset',
+      await getSelection().focusOffset,
+      'focusNodeType',
+      await getSelection().focusNode?.nodeType,
+      'NODE.TEXT_NODE',
+      Node.TEXT_NODE,
+    )
+    await waitUntil(() => window.getSelection()?.focusOffset !== 0)
 
     const offset = await getSelection().focusOffset
     // offset at the end of the thought is value.length for TEXT_NODE and 1 for ELEMENT_NODE
