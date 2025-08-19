@@ -202,17 +202,10 @@ describe('all platforms', () => {
     const currentThoughtText = await getEditingText()
     expect(currentThoughtText).toBe('first')
 
-    console.info(
-      'focusOffset',
-      await getSelection().focusOffset,
-      'focusNodeType',
-      await getSelection().focusNode?.nodeType,
-      'NODE.TEXT_NODE',
-      Node.TEXT_NODE,
-    )
-    await waitUntil(() => window.getSelection()?.focusOffset !== 0)
+    console.info('focusNodeType', await getSelection().focusNode?.nodeType, 'NODE.TEXT_NODE', Node.TEXT_NODE)
 
     const offset = await getSelection().focusOffset
+    console.info('offset :', offset)
     // offset at the end of the thought is value.length for TEXT_NODE and 1 for ELEMENT_NODE
     const focusNodeType = await getSelection().focusNode?.nodeType
     expect(offset).toBe(focusNodeType === Node.TEXT_NODE ? 'first'.length : 1)
