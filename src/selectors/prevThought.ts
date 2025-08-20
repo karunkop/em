@@ -39,6 +39,12 @@ const prevThought = (state: State, path: Path): Path | null => {
   }
 
   const prevSiblingThought = prevSibling(state, path)
+  console.info('prevSiblingThought :', JSON.stringify(prevSiblingThought))
+  console.info('pathParent :', JSON.stringify(pathParent))
+  console.info(
+    'lastVisibleDescendant :',
+    prevSiblingThought && JSON.stringify(lastVisibleDescendant(state, appendToPath(pathParent, prevSiblingThought.id))),
+  )
 
   // If the previous sibling is expanded, return its last descendant.
   // Otherwise, if not in any context view and no previous sibling, return parent.

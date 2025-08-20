@@ -98,7 +98,8 @@ export const isOnFirstLine = (): boolean => {
   const selection = window.getSelection()
   if (!selection) return true
 
-  const { anchorNode: baseNode, rangeCount } = selection
+  const { anchorNode: baseNode, rangeCount, focusNode } = selection
+  console.info('focusNode :', focusNode?.textContent)
   if (rangeCount === 0) return true
 
   const clientRects = selection.getRangeAt(0).getClientRects()
