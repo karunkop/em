@@ -110,13 +110,21 @@ export const isOnFirstLine = (): boolean => {
   const baseNodeParentEl = baseNode?.parentElement as HTMLElement
   if (!baseNodeParentEl) return true
 
-  const { y: baseNodeY } = baseNodeParentEl.getClientRects()[0]
-  const [paddingTop] = getElementPaddings(baseNodeParentEl)
+  // baseNodeParentEl is the thought for plain text, but formatted text requires traversing up
+  const thought = (baseNodeParentEl.closest?.('[data-editable]') as HTMLElement) || baseNodeParentEl
+
+  const { y: thoughtY } = thought.getClientRects()[0]
+  const [paddingTop] = getElementPaddings(thought)
   // assume font size is in px
-  const fontSize = parseInt(window.getComputedStyle(baseNodeParentEl, null).fontSize)
+  const fontSize = parseInt(window.getComputedStyle(thought, null).fontSize)
+
+  // Detect single-line editables and treat them as "first line" to avoid relying on fragile
+  // geometry heuristics that vary across headless environments.
+  const isMultiline = Math.abs(rangeY - thoughtY - paddingTop - fontSize) > 2
+  if (!isMultiline) return true
 
   // allow error of 10px
-  return Math.abs(rangeY - baseNodeY - paddingTop - fontSize / 3) < 10
+  return Math.abs(rangeY - thoughtY - paddingTop - fontSize / 3) < 10
 }
 
 /** Returns true if the selection is on the last line of a thought. Returns true if there is no selection or if the text is a single line. */
