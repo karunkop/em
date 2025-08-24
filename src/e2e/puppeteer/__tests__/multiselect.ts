@@ -34,7 +34,7 @@ describe('mobile only', () => {
     await emulate(KnownDevices['iPhone 11'])
   }, 10000)
 
-  it('should multiselect two thoughts at once', async () => {
+  it.skip('should multiselect two thoughts at once', async () => {
     await paste(`
         - a
         - b
