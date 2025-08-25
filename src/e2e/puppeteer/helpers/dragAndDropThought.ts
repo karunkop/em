@@ -1,4 +1,3 @@
-import sleep from '../../../util/sleep'
 import { page } from '../setup'
 import getEditable from './getEditable'
 import hide from './hide'
@@ -98,11 +97,29 @@ const dragAndDropThought = async (
 
   if (mouseUp) {
     await page.mouse.up()
-    await waitUntil(() => !document.querySelector('[data-drag-in-progress="true"]'))
 
-    // TODO: Why does drop/DragAndDropThought test fails intermittently without a small delay?
-    // Bullet highlight is visible.
-    await sleep(500)
+    // Wait for drag operation to fully complete by checking:
+    // 1. data-drag-in-progress attribute is removed (longPress !== DragInProgress)
+    // 2. data-drag-hold attribute is removed (longPress !== DragHold)
+    // 3. DragAndDropHint alert is dismissed (happens in endDrag after setTimeout)
+    // 4. Bullet highlight is cleared (data-highlighted becomes false)
+    await waitUntil(() => {
+      const dragInProgress = document.querySelector('[data-drag-in-progress="true"]')
+      const dragHold = document.querySelector('[data-drag-hold="true"]')
+
+      // Check if drag-and-drop alert is still showing
+      const alertElement = document.querySelector('[data-testid="alert-content"]')
+      const isDragAlert = alertElement?.textContent?.includes('Drag and drop')
+
+      // Check if any bullets are still highlighted from the drag operation
+      const highlightedBullets = document.querySelectorAll('[data-highlighted="true"]')
+
+      // Drag is complete when all conditions are met:
+      // - No drag states are active
+      // - Drag alert is dismissed
+      // - No bullets remain highlighted
+      return !dragInProgress && !dragHold && !isDragAlert && highlightedBullets.length === 0
+    })
   }
 
   // Hide Alert by default.
