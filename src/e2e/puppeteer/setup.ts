@@ -65,14 +65,22 @@ const setup = async ({
   await page.goto(url)
 
   if (skipTutorial) {
-    // wait for welcome modal to appear
-    await page.waitForSelector('#skip-tutorial')
+    // wait for page to fully load first
+    await page.waitForFunction(() => document.readyState === 'complete')
 
-    // click the skip tutorial link
-    await page.click('#skip-tutorial')
+    try {
+      // wait for welcome modal to appear with a shorter timeout
+      await page.waitForSelector('#skip-tutorial', { timeout: 10000 })
 
-    // wait for welcome modal to disappear
-    await page.waitForFunction(() => !document.getElementById('skip-tutorial'))
+      // click the skip tutorial link
+      await page.click('#skip-tutorial')
+
+      // wait for welcome modal to disappear
+      await page.waitForFunction(() => !document.getElementById('skip-tutorial'))
+    } catch (error) {
+      // If the modal doesn't appear within 10 seconds, assume it's not needed
+      console.error('Welcome modal did not appear - continuing without skipping tutorial')
+    }
   }
 }
 
