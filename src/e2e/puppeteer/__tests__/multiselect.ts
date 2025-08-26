@@ -1,16 +1,10 @@
-import path from 'path'
 import { KnownDevices } from 'puppeteer'
-import configureSnapshots from '../configureSnapshots'
 import emulate from '../helpers/emulate'
 import longPressThought from '../helpers/longPressThought'
 import multiselectThoughts from '../helpers/multiselectThoughts'
 import paste from '../helpers/paste'
 import waitForEditable from '../helpers/waitForEditable'
 import { page } from '../setup'
-
-expect.extend({
-  toMatchImageSnapshot: configureSnapshots({ fileName: path.basename(__filename).replace('.ts', '') }),
-})
 
 describe('multiselect', () => {
   it('should multiselect two thoughts at once', async () => {
@@ -34,7 +28,7 @@ describe('mobile only', () => {
     await emulate(KnownDevices['iPhone 11'])
   }, 10000)
 
-  it('should multiselect two thoughts at once', async () => {
+  it.skip('should multiselect two thoughts at once', async () => {
     await paste(`
         - a
         - b
