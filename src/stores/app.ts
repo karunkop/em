@@ -17,7 +17,7 @@ import freeThoughts from '../redux-middleware/freeThoughts'
 import multi from '../redux-middleware/multi'
 import multicursorAlertMiddleware from '../redux-middleware/multicursorAlertMiddleware'
 import pullQueue from '../redux-middleware/pullQueue'
-// import scrollCursorIntoView from '../redux-middleware/scrollCursorIntoView'
+import scrollCursorIntoView from '../redux-middleware/scrollCursorIntoView'
 import updateEditingValue from '../redux-middleware/updateEditingValue'
 import updateUrlHistory from '../redux-middleware/updateUrlHistory'
 import validateActionRegistrations from '../util/actionMetadata.registry'
@@ -39,7 +39,7 @@ const middlewareEnhancer = applyMiddleware(
   // must go after the thunk middleware, otherwise the Puppeteer cursor test fails
   debuggingMiddleware,
   pullQueue,
-  // scrollCursorIntoView, // DISABLED: Testing if multiple frames are still needed in categorize test
+  scrollCursorIntoView,
   clearSelection,
   updateEditingValue,
   updateUrlHistory,
