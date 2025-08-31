@@ -2,26 +2,10 @@ import { ElementHandle } from 'puppeteer'
 import { JSHandle } from 'puppeteer'
 import { page } from '../setup'
 
-interface Options {
-  /** Click on the inside edge of the editable. Default: left. */
-  edge?: 'left' | 'right'
-  /** Number of pixels of x offset to add to the touch coordinates, which defaults to width/2 but can be set to the left or right edge. */
-  x?: number
-  /** Number of pixels of y offset to add to the touch coordinates of height/2. */
-  y?: number
-}
-
 /**
  * Tap and hold a thought until a long press occurs.
  */
-const longPressThought = async (
-  nodeHandle: ElementHandle<Element> | JSHandle<undefined>,
-  { edge = 'left', x = 0, y = 0 }: Options = {},
-) => {
-  const boundingBox = await nodeHandle.asElement()?.boundingBox()
-
-  if (!boundingBox) throw new Error('Bounding box of element not found.')
-
+const longPressThought = async (nodeHandle: ElementHandle<Element> | JSHandle<undefined>) => {
   // Find the specific bullet element associated with this thought
   const bulletElement = await page.evaluateHandle(editableNode => {
     if (!editableNode) throw new Error('Node handle does not contain a valid Element')
@@ -39,9 +23,14 @@ const longPressThought = async (
 
   if (!(bulletElement instanceof ElementHandle)) throw new Error('Bullet element not found')
 
+  // Get the bounding box of the bullet element specifically
+  const bulletBoundingBox = await bulletElement.boundingBox()
+  if (!bulletBoundingBox) throw new Error('Bullet bounding box not found')
+
+  // Always use the center of the bullet for long press
   const coordinate = {
-    x: boundingBox.x + (edge ? (edge === 'left' ? 1 : boundingBox.width - 1) : boundingBox.width / 2) + x,
-    y: boundingBox.y + boundingBox.height / 2 + y,
+    x: bulletBoundingBox.x + bulletBoundingBox.width / 2,
+    y: bulletBoundingBox.y + bulletBoundingBox.height / 2,
   }
 
   await page.touchscreen.touchStart(coordinate.x, coordinate.y)

@@ -41,8 +41,8 @@ describe('mobile only', () => {
     const a = await waitForEditable('a')
     const b = await waitForEditable('b')
 
-    await longPressThought(a, { edge: 'right', x: 100 })
-    await longPressThought(b, { edge: 'right', x: 100 })
+    await longPressThought(a)
+    await longPressThought(b)
 
     // Wait for both bullets to be highlighted and command menu to update
     await waitUntil(() => {
