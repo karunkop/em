@@ -40,8 +40,8 @@ describe('mobile only', () => {
     const a = await waitForEditable('a')
     const b = await waitForEditable('b')
 
-    await longPressThought(a, { edge: 'right', x: 100 })
-    await longPressThought(b, { edge: 'right', x: 100 })
+    await longPressThought(a)
+    await longPressThought(b)
 
     const highlightedBullets = await page.$$('.bullet[data-highlighted=true]')
     const commandMenuPanelTextContent = await page.$eval('[data-testid=command-menu-panel]', el => el.textContent)
