@@ -7,6 +7,7 @@ import dragAndDropThought from '../helpers/dragAndDropThought'
 import hideHUD from '../helpers/hideHUD'
 import paste from '../helpers/paste'
 import screenshot from '../helpers/screenshot'
+import screenshotWithNoAntialiasing from '../helpers/screenshot-with-no-antialiasing'
 import simulateDragAndDrop from '../helpers/simulateDragAndDrop'
 import waitForEditable from '../helpers/waitForEditable'
 import { page } from '../setup'
@@ -28,6 +29,9 @@ expect.extend({
 })
 
 vi.setConfig({ testTimeout: 60000, hookTimeout: 20000 })
+
+/** Takes a screenshot with hardware acceleration disabled. */
+const takeScreenshot = () => screenshotWithNoAntialiasing({ hardwareAcceleration: false })
 
 /**
  * Checks if an element with the given text content is visible in the UI.
@@ -314,7 +318,7 @@ describe('drag', () => {
       showAlert: true,
     })
 
-    const image = await screenshot()
+    const image = await takeScreenshot()
     expect(image).toMatchImageSnapshot()
   })
 
