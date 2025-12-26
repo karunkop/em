@@ -1,6 +1,3 @@
-/**
- * @jest-environment ./src/e2e/webdriverio-environment.js
- */
 import gestures from '../../../test-helpers/gestures'
 import helpers from '../helpers'
 
@@ -8,7 +5,6 @@ const {
   clickThought,
   editThought,
   gesture,
-  getEditable,
   getEditingText,
   getElementRectByScreen,
   getSelection,
@@ -26,7 +22,7 @@ const {
 // https://github.com/cybersemics/em/issues/1475
 // https://github.com/cybersemics/em/issues/1523
 
-it.skip('Enter edit mode ', async () => {
+it('Enter edit mode ', async () => {
   await newThought('foo')
   await hideKeyboardByTappingDone()
 
@@ -38,11 +34,11 @@ it.skip('Enter edit mode ', async () => {
   expect(selectionTextContent).toBe('foo')
 })
 
-it.skip('Preserve Editing: true', async () => {
+it('Preserve Editing: true', async () => {
   await newThought('foo')
   await newThought('bar', { insertNewSubthought: true })
 
-  const editableNodeHandle = await getEditable('foo')
+  const editableNodeHandle = await waitForEditable('foo')
   await tap(editableNodeHandle, { y: 60, x: 20 })
 
   await waitUntil(async () => (await getEditingText()) === 'foo')
@@ -50,7 +46,7 @@ it.skip('Preserve Editing: true', async () => {
   expect(selectionTextContent).toBe('foo')
 })
 
-it.skip('Preserve Editing: false', async () => {
+it('Preserve Editing: false', async () => {
   await newThought('foo')
   await newThought('bar', { insertNewSubthought: true })
   await hideKeyboardByTappingDone()
@@ -62,7 +58,7 @@ it.skip('Preserve Editing: false', async () => {
   expect(selectionTextContent).toBe(null)
 })
 
-it.skip('No uncle loop', async () => {
+it('No uncle loop', async () => {
   const importText = `
     - a
       - b
@@ -101,7 +97,7 @@ it.skip('Tap hidden root thought', async () => {
   expect(editingText).toBe('b')
 })
 
-it.skip('Tap hidden uncle', async () => {
+it('Tap hidden uncle', async () => {
   const importText = `
     - a
       - b
@@ -236,7 +232,7 @@ it.skip('Bump Thought Down on a thought that has children', async () => {
   await newThought('bar', { insertNewSubthought: true })
   await hideKeyboardByTappingDone()
 
-  const editableNodeHandle = await getEditable('foo')
+  const editableNodeHandle = await waitForEditable('foo')
   await tap(editableNodeHandle)
 
   await gesture(gestures.bumpThoughtDown)

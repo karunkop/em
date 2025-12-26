@@ -60,12 +60,12 @@ export default defineConfig({
         test: {
           name: 'ios-browserstack',
           globals: true,
-          include: ['src/e2e/iOS/__tests__/split.ts'],
+          include: ['src/e2e/iOS/__tests__/*.ts'],
           exclude: ['node_modules/**'],
           environment: './src/e2e/webdriverio-environment.ts',
           retry: 0,
           testTimeout: 90000,
-          hookTimeout: 90000,
+          hookTimeout: 120000, // 2 minutes for BrowserStack session setup
           environmentOptions: {
             target: 'browserstack',
           },

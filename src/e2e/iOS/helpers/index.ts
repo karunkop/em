@@ -65,7 +65,7 @@ const index = () => {
 
   beforeEach(async () => {
     browserRef.current = await init()
-  }, 30000)
+  }, 120000) // 2 minutes to allow for BrowserStack latency and waitForElement timeouts
 
   return index as typeof index & {
     paste: typeof pasteOverload

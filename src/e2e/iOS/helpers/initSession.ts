@@ -1,5 +1,4 @@
 import { Browser } from 'webdriverio'
-import tap from './tap'
 import waitForElement from './waitForElement'
 
 // eslint-disable-next-line @typescript-eslint/no-namespace, @typescript-eslint/prefer-namespace-keyword
@@ -13,17 +12,25 @@ const initSession = (): (() => Promise<Browser>) => {
   let isFirstTest = true
 
   return async () => {
-    // Don't reload session for the first test. webdriverio already creates a session on init.
+    // For subsequent tests, just refresh the page and clear state instead of creating a new session
+    // reloadSession() is very slow on BrowserStack as it creates a completely new session
     if (!isFirstTest) {
-      await mobileBrowser.reloadSession()
+      // Clear localStorage to reset app state
+      await mobileBrowser.execute(() => {
+        localStorage.clear()
+        sessionStorage.clear()
+      })
+      // Refresh the page to get a clean state
+      await mobileBrowser.refresh()
     } else {
       isFirstTest = false
+      // Use bs-local.com for BrowserStack Local tunnel (localhost won't work on remote device)
+      await mobileBrowser.url('http://bs-local.com:3000')
     }
 
-    await mobileBrowser.url('http://bs-local.com:3000')
     const skipElement = await waitForElement(mobileBrowser, '#skip-tutorial', { timeout: 90000 })
     await mobileBrowser.waitUntil(async () => await skipElement.isClickable())
-    await tap(mobileBrowser, skipElement, { y: 50 })
+    await skipElement.click()
     await waitForElement(mobileBrowser, '[aria-label="empty-thoughtspace"]', { timeout: 90000 })
     return mobileBrowser
   }

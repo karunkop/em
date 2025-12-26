@@ -76,7 +76,29 @@ const tap = async (
 
   console.info(`Tapping at coordinates {x: ${finalCoords.x}, y: ${finalCoords.y}}`)
 
-  await browser.action('pointer').move(finalCoords).down().pause(releaseDelayMs).up().perform()
+  // Use performActions directly to avoid the automatic releaseActions call
+  // Safari/XCUITest doesn't support the DELETE /actions endpoint (releaseActions)
+  // which WebDriverIO's action().perform() calls automatically after performing
+  // Note: pointerType defaults to 'mouse' in WebDriverIO's action API
+  await browser.performActions([
+    {
+      type: 'pointer',
+      id: 'pointer1',
+      parameters: { pointerType: 'mouse' },
+      actions: [
+        {
+          type: 'pointerMove',
+          duration: 0,
+          x: Math.round(finalCoords.x),
+          y: Math.round(finalCoords.y),
+          origin: 'viewport',
+        },
+        { type: 'pointerDown', button: 0 },
+        { type: 'pause', duration: releaseDelayMs },
+        { type: 'pointerUp', button: 0 },
+      ],
+    },
+  ])
 }
 
 export default tap

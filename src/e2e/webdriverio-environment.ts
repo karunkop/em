@@ -13,13 +13,12 @@ enum Target {
 }
 
 /** Returns the config for the specified target. */
-function getTargetConfig(target: string) {
+function getTargetConfig(target: string, localIdentifier: string) {
   switch (target) {
     case Target.APPIUM:
       return appiumConfig()
 
     case Target.BROWSERSTACK:
-      const localIdentifier = 'local-' + nanoid()
       return browserStackConfig(localIdentifier)
 
     default:
@@ -28,7 +27,7 @@ function getTargetConfig(target: string) {
 }
 
 /** Creates and starts BrowserStack Local. */
-async function initializeBrowserStackLocal(config:  BrowserStackConfig) {
+async function initializeBrowserStackLocal(config: BrowserStackConfig) {
   const manager = BrowserStackManager()
   await manager.start(config.key, config.localIdentifier)
 
@@ -44,8 +43,21 @@ export default <Environment>{
 
     const { target } = options
 
-    const targetConfig = getTargetConfig(target)
-    const browserStack = target === Target.BROWSERSTACK ? await initializeBrowserStackLocal(targetConfig as BrowserStackConfig) : null
+    // In CI, the GitHub Action starts BrowserStack Local with BROWSERSTACK_LOCAL_IDENTIFIER
+    // Locally, we start our own BrowserStack Local with a random identifier
+    const isCI = process.env.CI === 'true'
+    const localIdentifier = process.env.BROWSERSTACK_LOCAL_IDENTIFIER || 'local-' + nanoid()
+
+    const targetConfig = getTargetConfig(target, localIdentifier)
+
+    // Skip starting BrowserStack Local in CI since the GitHub Action handles it
+    let browserStack = null
+    if (target === Target.BROWSERSTACK && !isCI) {
+      console.info(chalk.yellow('Starting BrowserStack Local tunnel...'))
+      browserStack = await initializeBrowserStackLocal(targetConfig as BrowserStackConfig)
+    } else if (target === Target.BROWSERSTACK && isCI) {
+      console.info(chalk.yellow('Using existing BrowserStack Local tunnel from CI environment'))
+    }
 
     // custom setup
     console.info(chalk.yellow('Setup Test Environment for webdriverio.'))

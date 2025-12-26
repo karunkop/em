@@ -1,3 +1,10 @@
+// Load .env.test.local before checking env vars since this file is imported
+import dotenv from 'dotenv'
+import path from 'path'
+
+// at module load time, before vitest's automatic env loading kicks in
+dotenv.config({ path: path.resolve(process.cwd(), '.env.test.local') })
+
 if (!process.env.BROWSERSTACK_USERNAME) {
   throw new Error('process.env.BROWSERSTACK_USERNAME not defined')
 } else if (!process.env.BROWSERSTACK_ACCESS_KEY) {
