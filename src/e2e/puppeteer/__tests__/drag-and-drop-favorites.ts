@@ -53,13 +53,21 @@ describe('favorites drag and drop', () => {
     await click('[aria-label="menu"]')
     await page.locator('[data-testid="sidebar"]').wait()
 
+    console.info('Now asserting initial order')
+
     // Verify initial order
     expect(await selectFavoritesText()).toEqual(['a', 'b', 'c', 'd'])
 
+    console.info('Now dragging d to b')
+
     await dragAndDropFavorite('d', 'b', { position: 'before' })
+
+    console.info('Now asserting new order')
 
     // Verify new order - d should now be before b
     expect(await selectFavoritesText()).toEqual(['a', 'd', 'b', 'c'])
+
+    console.info('Done')
   })
 
   it('should reorder favorites by dragging to the end or top of the list', async () => {
@@ -88,18 +96,27 @@ describe('favorites drag and drop', () => {
     // Open favorites in sidebar
     await click('[aria-label="menu"]')
     await page.locator('[data-testid="sidebar"]').wait()
+    console.info('Now asserting initial order')
 
     // Verify initial order
     expect(await selectFavoritesText()).toEqual(['a', 'b', 'c', 'e'])
 
+    console.info('Now dragging a to c')
+
     // Drag "a" after "c"
     await dragAndDropFavorite('a', 'c', { position: 'after' })
+
+    console.info('Now asserting new order after dragging a to c')
 
     // Verify new order - a should now be after c
     expect(await selectFavoritesText()).toEqual(['b', 'c', 'a', 'e'])
 
+    console.info('Now dragging e to b')
+
     // Drag "e" before "b" (to the top)
     await dragAndDropFavorite('e', 'b', { position: 'before' })
+
+    console.info('Now asserting new order after dragging e to b')
 
     // Verify new order - c should now be before b
     expect(await selectFavoritesText()).toEqual(['e', 'b', 'c', 'a'])
