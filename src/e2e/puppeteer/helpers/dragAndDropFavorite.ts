@@ -66,14 +66,9 @@ const dragAndDropFavorite = async (
 
   await page.locator('[data-testid="alert-content"]').wait()
 
-  console.info('Now waiting for mouse up')
-
   if (mouseUp) {
-    console.info('Now mouse up')
     await page.mouse.up()
-    console.info('Now waiting for drag in progress to be false')
     await waitUntil(() => !document.querySelector('[data-drag-in-progress="true"]'))
-    console.info('Now drag in progress is false')
   }
 }
 
