@@ -68,7 +68,13 @@ const dragAndDropFavorite = async (
 
   if (mouseUp) {
     await page.mouse.up()
-    await waitUntil(() => !document.querySelector('[data-drag-in-progress="true"]'))
+    await waitUntil(() => {
+      const dragInProgress = document.querySelector('[data-drag-in-progress="true"]')
+      const dragHold = document.querySelector('[data-drag-hold="true"]')
+
+      // Drag is complete when all drag-related states are cleared
+      return !dragInProgress && !dragHold
+    })
   }
 }
 
