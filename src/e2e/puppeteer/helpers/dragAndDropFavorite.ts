@@ -64,7 +64,10 @@ const dragAndDropFavorite = async (
     await page.mouse.move(dropPosition.x, dropPosition.y)
   }
 
-  await page.locator('[data-testid="alert-content"]').wait()
+  await waitUntil(() => {
+    const alertContent = document.querySelector('[data-testid="alert-content"]')
+    return alertContent?.textContent?.includes('Drag and drop to reorder favorites')
+  })
 
   if (mouseUp) {
     await page.mouse.up()
