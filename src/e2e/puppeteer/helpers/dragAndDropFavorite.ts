@@ -45,8 +45,13 @@ const dragAndDropFavorite = async (
   await page.mouse.move(dragPosition.x, dragPosition.y)
   await page.mouse.down()
 
-  // Allow the browser to register the press before initiating the drag movement
-  await new Promise(resolve => setTimeout(resolve, 100))
+  // Small initial movement to trigger the browser's native drag detection (dragstart).
+  // Chromium requires multiple intermediate mousemove events with sufficient distance
+  // from the mousedown point to recognize a drag gesture.
+  await page.mouse.move(dragPosition.x, dragPosition.y + 10, { steps: 2 })
+
+  // Wait for the drag state to be fully recognized before moving to the destination.
+  await page.locator('[data-drag-in-progress="true"]').wait()
 
   if (destValue) {
     const destElement = await findFavoriteItem(destValue)
@@ -58,18 +63,15 @@ const dragAndDropFavorite = async (
     const dragEnd = await destElement.boundingBox()
     if (!dragEnd) throw new Error('Drag destination element not found')
 
-    // Calculate drop position
+    // Offset a few pixels inward from the edge so the cursor is clearly inside the
+    // target's bounding box, not on the boundary between two adjacent elements.
     const dropPosition = {
       x: dragEnd.x + dragEnd.width / 2,
-      y: position === 'before' ? dragEnd.y : dragEnd.y + dragEnd.height,
+      y: position === 'before' ? dragEnd.y + 2 : dragEnd.y + dragEnd.height + 2,
     }
 
-    // Use multiple steps so the browser fires enough intermediate mousemove events
-    // to recognize the gesture as a drag and trigger native HTML5 dragstart.
     await page.mouse.move(dropPosition.x, dropPosition.y, { steps: 10 })
   }
-
-  await page.locator('[data-testid="alert-content"]').wait()
 
   if (mouseUp) {
     await page.mouse.up()
