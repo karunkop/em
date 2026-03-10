@@ -45,6 +45,9 @@ const dragAndDropFavorite = async (
   await page.mouse.move(dragPosition.x, dragPosition.y)
   await page.mouse.down()
 
+  // Allow the browser to register the press before initiating the drag movement
+  await new Promise(resolve => setTimeout(resolve, 100))
+
   if (destValue) {
     const destElement = await findFavoriteItem(destValue)
     if (!destElement.boundingBox) {
@@ -61,14 +64,20 @@ const dragAndDropFavorite = async (
       y: position === 'before' ? dragEnd.y : dragEnd.y + dragEnd.height,
     }
 
-    await page.mouse.move(dropPosition.x, dropPosition.y)
+    // Use multiple steps so the browser fires enough intermediate mousemove events
+    // to recognize the gesture as a drag and trigger native HTML5 dragstart.
+    await page.mouse.move(dropPosition.x, dropPosition.y, { steps: 10 })
   }
 
-  await page.locator('[data-drag-in-progress="true"]').wait()
+  await page.locator('[data-testid="alert-content"]').wait()
 
   if (mouseUp) {
     await page.mouse.up()
-    await waitUntil(() => !document.querySelector('[data-drag-in-progress="true"]'))
+    await waitUntil(() => {
+      const dragInProgress = document.querySelector('[data-drag-in-progress="true"]')
+      const dragHold = document.querySelector('[data-drag-hold="true"]')
+      return !dragInProgress && !dragHold
+    })
   }
 }
 
