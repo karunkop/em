@@ -1,4 +1,5 @@
 import { page } from '../setup'
+import hide from './hide'
 import waitUntil from './waitUntil'
 
 /**
@@ -36,22 +37,16 @@ const dragAndDropFavorite = async (
   const dragStart = await sourceElement.boundingBox()
   if (!dragStart) throw new Error('Drag source element not found')
 
-  // Calculate center of source element
+  // Click at the top-left of the element to avoid landing on child <a> elements
+  // from Link/ContextBreadcrumbs, which call stopPropagation() on mousedown and
+  // prevent useLongPress from firing.
   const dragPosition = {
-    x: dragStart.x + dragStart.width / 2,
-    y: dragStart.y + dragStart.height / 2,
+    x: dragStart.x + 2,
+    y: dragStart.y + 2,
   }
 
   await page.mouse.move(dragPosition.x, dragPosition.y)
   await page.mouse.down()
-
-  // Small initial movement to trigger the browser's native drag detection (dragstart).
-  // Chromium requires multiple intermediate mousemove events with sufficient distance
-  // from the mousedown point to recognize a drag gesture.
-  await page.mouse.move(dragPosition.x, dragPosition.y + 10, { steps: 2 })
-
-  // Wait for the drag state to be fully recognized before moving to the destination.
-  await page.locator('[data-drag-in-progress="true"]').wait()
 
   if (destValue) {
     const destElement = await findFavoriteItem(destValue)
@@ -63,24 +58,33 @@ const dragAndDropFavorite = async (
     const dragEnd = await destElement.boundingBox()
     if (!dragEnd) throw new Error('Drag destination element not found')
 
-    // Offset a few pixels inward from the edge so the cursor is clearly inside the
-    // target's bounding box, not on the boundary between two adjacent elements.
     const dropPosition = {
       x: dragEnd.x + dragEnd.width / 2,
       y: position === 'before' ? dragEnd.y + 2 : dragEnd.y + dragEnd.height + 2,
     }
 
+    // Move directly to the destination with sufficient steps to reliably
+    // trigger native HTML5 dragstart on the draggable ancestor.
     await page.mouse.move(dropPosition.x, dropPosition.y, { steps: 10 })
   }
 
+  // Wait for the drag-and-drop alert to appear. The alert is dispatched by either
+  // DragHold (400ms long press timer) or DragInProgress (native dragstart),
+  // whichever fires first. This dual-path approach matches dragAndDropThought
+  // and avoids relying solely on native drag detection.
+  await page.locator('[data-testid="alert-content"]').wait()
+
   if (mouseUp) {
     await page.mouse.up()
+
     await waitUntil(() => {
       const dragInProgress = document.querySelector('[data-drag-in-progress="true"]')
       const dragHold = document.querySelector('[data-drag-hold="true"]')
       return !dragInProgress && !dragHold
     })
   }
+
+  await hide('[data-testid="alert"]')
 }
 
 export default dragAndDropFavorite
