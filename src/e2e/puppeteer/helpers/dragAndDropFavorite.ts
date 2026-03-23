@@ -1,5 +1,4 @@
 import { page } from '../setup'
-import hide from './hide'
 import waitUntil from './waitUntil'
 
 /**
@@ -48,6 +47,20 @@ const dragAndDropFavorite = async (
   await page.mouse.move(dragPosition.x, dragPosition.y)
   await page.mouse.down()
 
+  // Wait for the long press timer (400ms) to confirm useLongPress
+  // received the mousedown and the browser has registered the mousedown
+  // position for drag detection.
+  await page.locator('[data-drag-hold="true"]').wait()
+
+  // Small movement to trigger native HTML5 dragstart. The browser
+  // needs explicit mouse movement after a settled mousedown to initiate a
+  // drag gesture on the ancestor div[draggable="true"].
+  await page.mouse.move(dragPosition.x, dragPosition.y + 20, { steps: 5 })
+
+  // Confirm native drag started (beginDrag fired). This ensures react-dnd
+  // has an active drag session so the drop handler will process the reorder.
+  await page.locator('[data-drag-in-progress="true"]').wait()
+
   if (destValue) {
     const destElement = await findFavoriteItem(destValue)
     if (!destElement.boundingBox) {
@@ -63,16 +76,9 @@ const dragAndDropFavorite = async (
       y: position === 'before' ? dragEnd.y + 2 : dragEnd.y + dragEnd.height + 2,
     }
 
-    // Move directly to the destination with sufficient steps to reliably
-    // trigger native HTML5 dragstart on the draggable ancestor.
+    // Phase 3: Move to the final drop position.
     await page.mouse.move(dropPosition.x, dropPosition.y, { steps: 10 })
   }
-
-  // Wait for the drag-and-drop alert to appear. The alert is dispatched by either
-  // DragHold (400ms long press timer) or DragInProgress (native dragstart),
-  // whichever fires first. This dual-path approach matches dragAndDropThought
-  // and avoids relying solely on native drag detection.
-  await page.locator('[data-testid="alert-content"]').wait()
 
   if (mouseUp) {
     await page.mouse.up()
@@ -83,8 +89,6 @@ const dragAndDropFavorite = async (
       return !dragInProgress && !dragHold
     })
   }
-
-  await hide('[data-testid="alert"]')
 }
 
 export default dragAndDropFavorite
