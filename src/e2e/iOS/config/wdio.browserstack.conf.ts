@@ -34,6 +34,12 @@ export const config: WebdriverIO.Config = {
   user,
   key: process.env.BROWSERSTACK_ACCESS_KEY,
 
+  // Retry spec files up to 2 times for transient BrowserStack session startup failures (e.g. queue full). Retries are deferred until other specs finish; delay must remain 0 to avoid a WDIO hang.
+  specFileRetries: 2,
+  specFileRetriesDelay: 0,
+  specFileRetriesDeferred: true,
+  connectionRetryCount: 5,
+
   // Capabilities
   capabilities: [
     {
@@ -47,11 +53,9 @@ export const config: WebdriverIO.Config = {
         buildName: process.env.BROWSERSTACK_BUILD_NAME || `Local - ${user} - ${date}`,
         sessionName: 'iOS Safari Tests',
         local: true,
-        // These flags collect diagnostic data on BrowserStack's web dashboard,
-        // which we don't need/use.
-        debug: false,
-        networkLogs: false,
-        consoleLogs: 'errors',
+        debug: true,
+        networkLogs: true,
+        consoleLogs: 'verbose',
         idleTimeout: 60,
       },
     },
@@ -65,8 +69,7 @@ export const config: WebdriverIO.Config = {
         browserstackLocal: true,
         testObservability: true,
         opts: {
-          // logFile still captures local-tunnel debug output; verbose stdout would only duplicate it into the runner log.
-          verbose: false,
+          verbose: true,
           forceLocal: true,
           logFile: 'browserstack.log',
         },
