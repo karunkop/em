@@ -51,7 +51,39 @@ jobs:
         run: yarn servebuild &
 
       - name: Test iOS on BrowserStack
-        run: yarn test:ios
+        # Workflow-level retry around `yarn test:ios` because WDIO's own
+        # specFileRetries cannot recover from BROWSERSTACK_QUEUE_SIZE_EXCEEDED
+        # errors that happen at WebDriver session init (before the worker can
+        # report sessionStarted, so the launcher's retries counter stays at -1
+        # and the spec is never re-queued — see
+        # https://github.com/webdriverio/webdriverio/issues/5807 and
+        # packages/wdio-cli/src/launcher.ts:_endHandler).
+        #
+        # Queue exhaustion happens transiently when several PR builds hit the
+        # shared BrowserStack account quota at once. Sleeping 60s and retrying
+        # the whole `yarn test:ios` command reliably clears it because every
+        # other CI run completes within ~2 minutes.
+        #
+        # We allow up to 3 total attempts, with the next attempt only running
+        # if the previous one failed. A passing first (or second) attempt
+        # short-circuits via `exit 0` so we don't waste BrowserStack minutes.
+        run: |
+          set +e
+          for attempt in 1 2 3; do
+            echo "===== Attempt $attempt of 3: yarn test:ios ====="
+            yarn test:ios
+            status=$?
+            if [ $status -eq 0 ]; then
+              echo "===== Attempt $attempt succeeded ====="
+              exit 0
+            fi
+            if [ $attempt -lt 3 ]; then
+              echo "===== Attempt $attempt failed (exit $status); sleeping 60s before retry ====="
+              sleep 60
+            fi
+          done
+          echo "===== All 3 attempts failed ====="
+          exit 1
         env:
           # BrowserStack credentials - WDIO's browserstack-service handles the tunnel
           BROWSERSTACK_USERNAME: ${{secrets.BROWSERSTACK_USERNAME}}
