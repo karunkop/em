@@ -17,6 +17,7 @@ export default defineConfig({
           // This is done to ensure that localStorage is always defined (especially in CI environment).
           // setupFiles: ['vitest-localstorage-mock', 'src/setupTests.js'],
           setupFiles: ['src/setupTests.js'],
+          globalSetup: [],
         },
       },
       {
