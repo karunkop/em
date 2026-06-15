@@ -42,3 +42,8 @@ HTMLImageElement.prototype.decode = vi.fn().mockResolvedValue(undefined)
 
 // stub jest globally. This is needed incase jest is being directly referenced in the code.
 vi.stubGlobal('jest', vi)
+
+// Cancel pending throttle/debounce timers so they don't fire after test teardown.
+afterEach(() => {
+  vi.clearAllTimers()
+})

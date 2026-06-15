@@ -1,23 +1,26 @@
 /** Gets the storage object. */
-const getStorage = () => window.localStorage
+const getStorage = (): Storage | null => {
+  if (typeof window === 'undefined') return null
+  return window.localStorage
+}
 
 /** Clear local storage. */
-const clear = () => getStorage().clear()
+const clear = () => getStorage()?.clear()
 
 /** Removes an item from local storage. */
-const removeItem = (key: string) => getStorage().removeItem(key)
+const removeItem = (key: string) => getStorage()?.removeItem(key)
 
 /** Sets an item on local storage. */
-const setItem = (key: string, value: string) => getStorage().setItem(key, value)
+const setItem = (key: string, value: string) => getStorage()?.setItem(key, value)
 
 function getItem(key: string): string | null
 function getItem(key: string, defaultValue: string | (() => string)): string
 /** Gets the item from local storage. If it does not exist and defaultValue is provided, sets the value in local storage to defaultValue and returns it. */
 function getItem(key: string, defaultValue?: string | (() => string)) {
-  let value = getStorage().getItem(key)
+  let value = getStorage()?.getItem(key)
   if (value === null && defaultValue !== undefined) {
     value = typeof defaultValue === 'function' ? defaultValue() : defaultValue
-    getStorage().setItem(key, value)
+    getStorage()?.setItem(key, value ?? '')
   }
   return value
 }

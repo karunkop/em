@@ -44,24 +44,23 @@ const updateJumpHistory = (state: State): State => {
     : state
 }
 
-/** Saves the jump history to localStorage. */
-const saveJumpHistory = _.throttle(
-  (jumpHistory: (Path | null)[]) => {
-    storageModel.set('jumpHistory', jumpHistory)
-  },
-  SAVE_THROTTLE,
-  {
-    leading: false,
-  },
-)
-
 /** Update the jump history whenever thoughts change. */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const updateJumpHistoryEnhancer: StoreEnhancer<any> =
   (createStore: StoreEnhancerStoreCreator) =>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  <A extends Action<any>>(reducer: (state: any, action: A) => any, initialState: any): Store<State, A> =>
-    createStore((state: State | undefined, action: A): State => {
+  <A extends Action<any>>(reducer: (state: any, action: A) => any, initialState: any): Store<State, A> => {
+    const saveJumpHistory = _.throttle(
+      (jumpHistory: (Path | null)[]) => {
+        storageModel.set('jumpHistory', jumpHistory)
+      },
+      SAVE_THROTTLE,
+      {
+        leading: false,
+      },
+    )
+
+    return createStore((state: State | undefined, action: A): State => {
       const stateNew: State = reducer(state, action)
 
       // Do not update the jumpHistory on freeThoughts, otherwise jumpIndex will get reset to 0 on jumpBack, preventing more than a single jump.
@@ -73,5 +72,6 @@ const updateJumpHistoryEnhancer: StoreEnhancer<any> =
         return stateNew
       }
     }, initialState)
+  }
 
 export default updateJumpHistoryEnhancer
