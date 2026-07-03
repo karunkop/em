@@ -15,8 +15,8 @@ export default defineConfig({
           mockReset: false,
           // localStorage is mocked by vitest-localstorage-mock first before setupTests.js runs.
           // This is done to ensure that localStorage is always defined (especially in CI environment).
-          // setupFiles: ['vitest-localstorage-mock', 'src/setupTests.js'],
-          setupFiles: ['src/setupTests.js'],
+          setupFiles: ['vitest-localstorage-mock', 'src/setupTests.js'],
+          // setupFiles: ['src/setupTests.js'],
           globalSetup: [],
         },
       },

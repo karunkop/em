@@ -6,12 +6,6 @@ import { noop } from 'lodash'
 import { TextDecoder, TextEncoder } from 'util'
 import 'vi-canvas-mock'
 
-// jsdom provides localStorage on window; expose it globally for module-level access.
-// Equivalent to the jsdom-global setup: https://stackoverflow.com/questions/54922579/vue-js-unit-test-localstorage-is-not-defined
-global.localStorage = window.localStorage
-global.sessionStorage = window.sessionStorage
-window.Date = Date
-
 expect.extend(matchers)
 
 // define missing global built-ins for jest
