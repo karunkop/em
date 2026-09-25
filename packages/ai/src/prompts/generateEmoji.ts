@@ -82,3 +82,5 @@ Order them from most to least semantically precise and culturally recognizable.`
 }
 
 export default generateEmoji
+
+// CI test for #5236: touches the prompt so the Evals workflow selects its evaluation.
