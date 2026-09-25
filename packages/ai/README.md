@@ -155,3 +155,5 @@ Function metrics (invocations, duration percentiles, error rate, cold starts, me
 - `OPENAI_API_KEY_ORGANIZE_THOUGHT` — per-service key for Organize Thought in the `em-ai` Vercel Production and Preview environments. See [API keys](#api-keys).
 - `PORT` — optional local server port. Defaults to `3111`.
 - `VITE_AI_URL` — public, build-time client base URL. Development uses `http://localhost:3111/ai`, production uses `https://ai.emthought.space/ai`, and pull request builds receive their matching `em-ai` preview URL from the workflow.
+
+<!-- CI test for #5236: outside the allowlist, so Evals reports no check. -->
