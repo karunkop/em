@@ -32,3 +32,5 @@ const defineTerm = async (terms: string[]): Promise<string[]> => {
 }
 
 export default defineTerm
+
+// CI test for #5236: define-term
