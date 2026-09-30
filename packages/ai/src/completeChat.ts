@@ -42,3 +42,5 @@ const completeChat = async <T>({
 }
 
 export default completeChat
+
+// CI test for #5236: complete-chat
