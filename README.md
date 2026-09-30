@@ -181,3 +181,5 @@ Every dependency resolves to the npm registry, which `yarn lint:lockfile` enforc
 - `yarn patch` applies the patches in [`.yarn/patches`](.yarn/patches) to a package after it is fetched. [`.yarn/patches/README.md`](.yarn/patches/README.md) describes each patch and how to add another.
 
 A package that ships without TypeScript types gets its declarations in [`src/@types`](src/@types), e.g. [`page-lifecycle.d.ts`](src/@types/page-lifecycle.d.ts), rather than being replaced by a typed fork.
+
+// CI test for #5236: unrelated
